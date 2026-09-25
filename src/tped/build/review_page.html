@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#3D7A8A">
+<title>MG-1 抽樣審查</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary:#F5F0E8; --bg-card:#FFFFFF; --accent:#3D7A8A; --accent-hover:#2E6B7A;
+  --accent-light:rgba(61,122,138,0.08); --text-primary:#2C2C2C; --text-muted:#6B7280;
+  --border:#E0D9CE; --danger:#C0392B; --success:#27AE60; --warning:#E67E22; --warn-text:#8A4B08;
+  --radius:8px; --mono:'JetBrains Mono', monospace;
+}
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg-primary); font-family:'Noto Sans TC',sans-serif; color:var(--text-primary); line-height:1.6; font-size:0.9rem; }
+.wrap { max-width:1560px; margin:0 auto; padding:1rem 1rem 4rem; }
+header.top { display:flex; flex-wrap:wrap; align-items:center; gap:0.75rem; }
+header.top h1 { font-size:1.2rem; margin:0; flex:1 1 auto; }
+.card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.1rem 1.2rem; margin-top:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
+.card h2 { font-size:1.05rem; margin:0 0 0.25rem; display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; }
+.hint { font-size:0.78rem; color:var(--text-muted); margin:0 0 0.6rem; }
+.mono { font-family:var(--mono); }
+label.inline { display:inline-flex; align-items:center; gap:0.4rem; font-size:0.85rem; }
+input[type=text], textarea { font:inherit; border:1px solid var(--border); border-radius:6px; padding:0.35rem 0.5rem; background:#fff; color:var(--text-primary); }
+input[type=text]:focus, textarea:focus, button:focus-visible { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-light); }
+textarea { width:100%; min-height:3.2rem; resize:vertical; }
+button { font:inherit; border:1px solid var(--border); background:#fff; color:var(--text-primary); border-radius:6px; padding:0.35rem 0.8rem; cursor:pointer; }
+button.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+button.primary:hover { background:var(--accent-hover); }
+button.danger { border-color:var(--danger); color:var(--danger); }
+button.active.primary { box-shadow:0 0 0 3px var(--accent-light); }
+button.active.danger { background:#FDF3F2; }
+.tabs { display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.75rem; }
+.tab { display:flex; flex-direction:column; align-items:flex-start; gap:0; padding:0.35rem 0.7rem; }
+.tab[aria-current=true] { border-color:var(--accent); background:var(--accent-light); }
+.tab .n { font-family:var(--mono); font-size:0.75rem; color:var(--text-primary); }
+.layout { display:grid; grid-template-columns:220px 1fr; gap:1rem; align-items:start; }
+.list { position:sticky; top:0.5rem; }
+.list ol { list-style:none; margin:0; padding:0; }
+.list li button { width:100%; text-align:left; border:0; border-bottom:1px solid var(--border); border-radius:0; padding:0.3rem 0.4rem; font-size:0.8rem; display:flex; gap:0.4rem; }
+.list li button[aria-current=true] { background:var(--accent-light); font-weight:700; }
+.st { font-family:var(--mono); width:1.1rem; flex:none; }
+.st.pass::before { content:"✓"; color:var(--accent); }
+.st.fail::before { content:"⚠"; color:var(--danger); }
+.st.none::before { content:"–"; color:var(--text-muted); }
+.compare { display:grid; grid-template-columns:minmax(0,3fr) minmax(0,2fr); gap:1rem; }
+.pdf a { display:block; }
+details.date > summary { font-size:1.05rem; font-weight:700; color:var(--text-primary); }
+.pdf img { width:100%; height:auto; border:1px solid var(--border); border-radius:6px; display:block; margin-bottom:0.5rem; }
+.field { margin-bottom:0.6rem; }
+.field .k { font-size:0.72rem; color:var(--text-muted); font-weight:500; }
+.field .v { white-space:pre-wrap; word-break:break-word; font-size:0.95rem; }
+.opt { display:grid; grid-template-columns:1.6rem 1fr; gap:0.2rem; margin:0.15rem 0; }
+.opt .key { font-family:var(--mono); font-weight:700; }
+.opt.correct .key { color:var(--accent); }
+.empty { color:var(--text-muted); font-style:italic; }
+mark.script { background:#FFF3E0; color:var(--warn-text); border-bottom:1px dotted var(--warn-text); padding:0 1px; }
+.chips { display:flex; flex-wrap:wrap; gap:0.3rem; }
+.chip { font-size:0.72rem; border:1px solid var(--border); border-radius:999px; padding:0 0.5rem; background:#fff; }
+.metrics { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:0.5rem; }
+.metric { border:1px solid var(--border); border-radius:6px; padding:0.45rem 0.6rem; }
+.metric .name { font-size:0.72rem; color:var(--text-muted); }
+.metric .val { font-family:var(--mono); font-weight:700; font-size:1rem; }
+.metric.key { border-color:var(--accent); background:var(--accent-light); }
+.metric.key .name { color:var(--text-primary); }
+.alert { border:1px solid; border-radius:6px; padding:0.5rem 0.75rem; font-size:0.8rem; margin-top:0.6rem; }
+.alert--info { background:var(--accent-light); border-color:var(--accent); color:var(--accent-hover); }
+.alert--warn { background:#FFF3E0; border-color:#FFCC80; color:var(--warn-text); }
+.alert--error { background:#FDF3F2; border-color:#EF9A9A; color:var(--danger); }
+.actions { display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; margin-top:0.75rem; }
+.save { font-size:0.78rem; color:var(--text-muted); }
+details summary { cursor:pointer; font-size:0.85rem; color:var(--accent); }
+kbd { font-family:var(--mono); font-size:0.72rem; border:1px solid var(--border); border-bottom-width:2px; border-radius:4px; padding:0 0.3rem; background:#fff; }
+.foot { font-size:0.75rem; margin-top:1.5rem; color:var(--text-primary); }
+@media (max-width: 900px) { .layout, .compare { grid-template-columns:1fr; } .list { position:static; } }
+@media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>MG-1 抽樣審查</h1>
+    <label class="inline">審查者縮寫 <input type="text" id="reviewer" size="6" maxlength="20" autocomplete="off"></label>
+  </header>
+  <nav class="tabs" id="tabs" aria-label="考試"></nav>
+  <div id="main"></div>
+  <p class="foot">可接受之差異僅限正規化規則 T：全形英數→半形、CJK 相容漢字正規化、空白與換行調整、113–114 年上下標未還原（115 年起小字型以<mark class="script">底色</mark>標示）。其餘任何字元差異、選項錯置、答案不符皆判「不符」並寫明位置。鍵盤：<kbd>J</kbd>/<kbd>K</kbd> 下一題／上一題、<kbd>P</kbd> 通過、<kbd>F</kbd> 不符。</p>
+</div>
+<script>
+"use strict";
+const $ = (tag, attrs = {}, ...kids) => {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") el.className = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else if (v !== null && v !== undefined && v !== false) el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of kids.flat()) if (c !== null && c !== undefined) el.append(c instanceof Node ? c : document.createTextNode(String(c)));
+  return el;
+};
+const state = { exams: [], code: null, data: null, idx: 0, saveTimer: null, saving: false };
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch { /* 私密模式 */ } },
+};
+const reviewerInput = document.getElementById("reviewer");
+reviewerInput.value = store.get("mg1.reviewer") || "";
+reviewerInput.addEventListener("input", () => store.set("mg1.reviewer", reviewerInput.value.trim()));
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  const body = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(body.error || `HTTP ${r.status}`);
+  return body;
+}
+
+async function loadExams() {
+  state.exams = await api("/api/exams");
+  renderTabs();
+  const saved = store.get("mg1.exam");
+  const first = state.exams.find(e => e.exam_code === saved) || state.exams[0];
+  if (first) await openExam(first.exam_code);
+}
+
+function renderTabs() {
+  const tabs = document.getElementById("tabs");
+  tabs.replaceChildren(...state.exams.map(e => $("button", {
+    class: "tab", "aria-current": e.exam_code === state.code ? "true" : "false",
+    onclick: () => openExam(e.exam_code),
+  }, $("span", { class: "mono" }, e.exam_code),
+     $("span", { class: "n" }, `${e.done}/${e.total}${e.fails ? ` ⚠${e.fails}` : ""}${e.quote ? "" : " 日期未核"}`))));
+}
+
+async function openExam(code) {
+  state.code = code; state.idx = 0; store.set("mg1.exam", code);
+  state.data = await api(`/api/exam/${code}`);
+  const firstOpen = state.data.items.findIndex(it => !it.result);
+  state.idx = firstOpen >= 0 ? firstOpen : 0;
+  renderTabs(); render();
+}
+
+function progress() {
+  const items = state.data.items;
+  return { done: items.filter(i => i.result).length, fails: items.filter(i => i.result === "fail").length, total: items.length };
+}
+
+function render() {
+  const d = state.data, main = document.getElementById("main");
+  const p = progress();
+  const blocking = [];
+  if (!d.exam_date_source_quote) blocking.push("尚未核對考試日期來源");
+  if (p.done < p.total) blocking.push(`尚有 ${p.total - p.done} 題未判定`);
+  const dateCard = $("section", { class: "card" }, $("details", { class: "date", open: !d.exam_date_source_quote },
+    $("summary", {}, `考試日期核對 ${d.exam_code}　${d.exam_date_source_quote ? "✓ 已核對" : "– 未核對"}　·　抽樣 ${p.done}/${p.total}${p.fails ? `　⚠ 不符 ${p.fails}` : ""}`),
+    $("p", { class: "hint" }, "開啟來源頁，確認「考試日期」最後一天與下方一致，並逐字貼上頁面原文。"),
+    $("div", { class: "metrics" },
+      metric("exam_date（inputs）", d.exam_date || "—", true),
+      metric("本場抽樣", `${p.done}/${p.total} 已判定`),
+      metric("不符", String(p.fails))),
+    $("p", {}, $("a", { href: d.exam_date_source_url, target: "_blank", rel: "noopener noreferrer" }, "考選部考試期日頁（新分頁）")),
+    $("label", { for: "quote", class: "field" }, $("div", { class: "k" }, "exam_date_source_quote（逐字）")),
+    $("textarea", { id: "quote", oninput: e => { d.exam_date_source_quote = e.target.value; scheduleSave(); } }, d.exam_date_source_quote || ""),
+    d.not_applicable.length ? $("div", { class: "alert alert--info" }, `本場無成員之風險標籤（記為不適用）：${d.not_applicable.join("、")}`) : null,
+    blocking.length ? $("div", { class: "alert alert--warn" }, `尚不能放行：${blocking.join("；")}`)
+      : p.fails ? $("div", { class: "alert alert--error" }, `有 ${p.fails} 題不符：本場將維持 withheld:[mg1_failed]，不會進 release`)
+      : $("div", { class: "alert alert--info" }, "✓ 全部通過：重跑 tped compile 後本場即可進 release")));
+
+  const list = $("aside", { class: "card list" }, $("ol", {}, d.items.map((it, i) => $("li", {},
+    $("button", { "aria-current": i === state.idx ? "true" : "false", onclick: () => { state.idx = i; render(); } },
+      $("span", { class: `st ${it.result || "none"}`, "aria-label": it.result === "pass" ? "通過" : it.result === "fail" ? "不符" : "未判定" }),
+      $("span", { class: "mono" }, it.id.replace(/^\d{3}-\d-PHARM-/, "")))))));
+  main.replaceChildren(dateCard, $("div", { class: "layout" }, list, itemCard(d.items[state.idx])));
+}
+
+function metric(name, val, key = false) {
+  return $("div", { class: key ? "metric key" : "metric" }, $("div", { class: "name" }, name), $("div", { class: "val" }, val));
+}
+
+function withScript(text, offsets) {
+  if (!text) return [$("span", { class: "empty" }, "（空：圖片選項）")];
+  const set = new Set(offsets || []);
+  const out = []; let buf = ""; let inMark = false;
+  const flush = () => { if (!buf) return; out.push(inMark ? $("mark", { class: "script", title: "小字型（上下標候選）" }, buf) : buf); buf = ""; };
+  [...text].forEach((ch, i) => { const s = set.has(i); if (s !== inMark) { flush(); inMark = s; } buf += ch; });
+  flush();
+  return out;
+}
+
+function answerText(q) {
+  if (q.score_policy === "all_credit") return "一律給分";
+  return q.accepted_answers.map(s => s.join("")).join(" 或 ");
+}
+
+function itemCard(it) {
+  const q = it.question;
+  const correct = new Set(q.accepted_answers.length === 1 && q.accepted_answers[0].length === 1 ? q.accepted_answers[0] : []);
+  const off = q.script_char_offsets;
+  const imgs = Array.from({ length: it.regions }, (_, j) => $("a", { href: `/img/q/${q.id}/${j}`, target: "_blank", rel: "noopener", title: "新分頁開啟原尺寸" },
+    $("img", { src: `/img/q/${q.id}/${j}`, alt: `${q.id} PDF 原文第 ${j + 1} 段`, loading: "lazy" })));
+  const ansImgs = $("div", {});
+  const kinds = [q.source.mod_rev ? "MOD" : null, q.source.ans_rev ? "ANS" : null].filter(Boolean);
+  const ansDetails = $("details", { ontoggle: e => {
+    if (e.target.open && !ansImgs.childElementCount)
+      ansImgs.replaceChildren(...kinds.map(k => $("figure", {}, $("figcaption", { class: "hint" }, k === "MOD" ? "更正答案（MOD）" : "標準答案（ANS）"),
+        $("img", { src: `/img/a/${q.exam_code}/${q.subject}/${k}`, alt: `${k} 答案 PDF`, style: "width:100%;height:auto;border:1px solid var(--border);border-radius:6px" }))));
+  } }, $("summary", {}, `顯示答案 PDF（${kinds.join("、")}）`), ansImgs);
+
+  const note = $("textarea", { id: "note", placeholder: "判為不符時必填：寫明欄位與位置", oninput: e => { it.note = e.target.value; scheduleSave(); } }, it.note || "");
+  const err = $("div", { class: "alert alert--error", hidden: true, role: "alert" });
+  const setResult = r => {
+    if (r === "fail" && !note.value.trim()) { err.hidden = false; err.textContent = "⚠ 判為不符前請先填寫備註（欄位與位置）"; note.focus(); return; }
+    const who = reviewerInput.value.trim();
+    if (r && !who) { err.hidden = false; err.textContent = "⚠ 請先在右上角填寫審查者縮寫"; reviewerInput.focus(); return; }
+    it.result = r; it.reviewer = r ? who : ""; err.hidden = true;
+    saveNow().then(() => { if (r === "pass" && state.idx < state.data.items.length - 1) state.idx++; render(); });
+  };
+  const verdict = it.result === "pass" ? "✓ 通過" : it.result === "fail" ? "⚠ 不符" : "– 未判定";
+
+  return $("section", { class: "card", "aria-label": q.id },
+    $("h2", {}, $("span", { class: "mono" }, q.id), $("span", { class: "chips" }, (it.labels || []).map(l => $("span", { class: "chip" }, l)))),
+    $("p", { class: "hint" }, `${verdict}${it.reviewer ? `（${it.reviewer}）` : ""}　·　左：PDF 原文；右：抽出之 L2 與答案`),
+    $("div", { class: "compare" },
+      $("div", { class: "pdf" }, imgs),
+      $("div", {},
+        $("div", { class: "field" }, $("div", { class: "k" }, "題幹"), $("div", { class: "v" }, withScript(q.stem, off.stem))),
+        $("div", { class: "field" }, $("div", { class: "k" }, "選項"),
+          ["A", "B", "C", "D"].map(k => $("div", { class: correct.has(k) ? "opt correct" : "opt" },
+            $("span", { class: "key" }, correct.has(k) ? `${k}✓` : k), $("span", { class: "v" }, withScript(q.options[k], off[k]))))),
+        $("div", { class: "metrics" },
+          metric("accepted_answers", answerText(q), true),
+          metric("answer_status", q.answer_status),
+          metric("score_policy", q.score_policy)),
+        q.answer_raw_note ? $("div", { class: "alert alert--info" }, `備註原文：${q.answer_raw_note}`) : null,
+        q.has_figure ? $("div", { class: "alert alert--warn" }, "含圖：確認圖片完整落在左側截圖內，空選項確為圖片") : null,
+        $("div", { class: "field", style: "margin-top:0.6rem" }, ansDetails))),
+    $("label", { for: "note", class: "field" }, $("div", { class: "k", style: "margin-top:0.75rem" }, "備註")),
+    note, err,
+    $("div", { class: "actions" },
+      $("button", { class: `primary${it.result === "pass" ? " active" : ""}`, onclick: () => setResult("pass") }, "✓ 通過（P）"),
+      $("button", { class: `danger${it.result === "fail" ? " active" : ""}`, onclick: () => setResult("fail") }, "⚠ 不符（F）"),
+      $("button", { onclick: () => setResult(null) }, "清除"),
+      $("button", { onclick: () => move(-1), disabled: state.idx === 0 }, "上一題（K）"),
+      $("button", { onclick: () => move(1), disabled: state.idx === state.data.items.length - 1 }, "下一題（J）"),
+      $("span", { class: "save", id: "saveState", "aria-live": "polite" }, "")));
+}
+
+function move(d) {
+  const n = state.idx + d;
+  if (n >= 0 && n < state.data.items.length) { state.idx = n; render(); window.scrollTo({ top: 0 }); }
+}
+
+function scheduleSave() { clearTimeout(state.saveTimer); state.saveTimer = setTimeout(saveNow, 600); }
+
+async function saveNow() {
+  clearTimeout(state.saveTimer);
+  const d = state.data, el = () => document.getElementById("saveState");
+  try {
+    await api(`/api/exam/${d.exam_code}`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ exam_date_source_quote: d.exam_date_source_quote,
+        items: d.items.map(({ id, result, reviewer, note }) => ({ id, result, reviewer, note })) }),
+    });
+    if (el()) el().textContent = "✓ 已存檔";
+    const e = state.exams.find(x => x.exam_code === d.exam_code);
+    if (e) { const p = progress(); e.done = p.done; e.fails = p.fails; e.quote = !!d.exam_date_source_quote; renderTabs(); }
+  } catch (err) {
+    if (el()) el().textContent = `⚠ 存檔失敗：${err.message}`;
+    throw err;
+  }
+}
+
+document.addEventListener("keydown", e => {
+  if (!state.data || ["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName) || e.ctrlKey || e.metaKey || e.altKey) return;
+  const k = e.key.toLowerCase();
+  if (k === "j") move(1);
+  else if (k === "k") move(-1);
+  else if (k === "p") document.querySelector(".actions .primary")?.click();
+  else if (k === "f") { const n = document.getElementById("note"); if (n && !n.value.trim()) { e.preventDefault(); n.focus(); } else document.querySelector(".actions .danger")?.click(); }
+});
+
+loadExams().catch(err => document.getElementById("main").replaceChildren($("div", { class: "card" }, $("div", { class: "alert alert--error" }, `⚠ 載入失敗：${err.message}`))));
+</script>
+</body>
+</html>

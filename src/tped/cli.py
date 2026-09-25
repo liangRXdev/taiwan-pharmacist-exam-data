@@ -10,8 +10,8 @@ def main() -> None:
         stream.reconfigure(encoding="utf-8")
     logging.getLogger("pdfminer").setLevel(logging.ERROR)
     argv = sys.argv[1:]
-    if not argv or argv[0] not in {"acquire", "compile", "oracle-check", "review-init"}:
-        print("usage: tped {acquire|compile --release-date YYYY-MM-DD|oracle-check|review-init EXAM_CODE}", file=sys.stderr)
+    if not argv or argv[0] not in {"acquire", "compile", "oracle-check", "review-init", "review-serve"}:
+        print("usage: tped {acquire|compile --release-date YYYY-MM-DD|oracle-check|review-init EXAM_CODE|review-serve}", file=sys.stderr)
         sys.exit(2)
     cmd, rest = argv[0], argv[1:]
     try:
@@ -21,6 +21,8 @@ def main() -> None:
             from .build.run import main as run
         elif cmd == "review-init":
             from .build.review import main as run
+        elif cmd == "review-serve":
+            from .build.review_serve import main as run
         else:
             from .acquire.oracle import main as run
         code = run(rest)
