@@ -1,0 +1,10 @@
+oracle/
+dist/
+intermediate/
+progress.md
+plan.md
+.remember/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
