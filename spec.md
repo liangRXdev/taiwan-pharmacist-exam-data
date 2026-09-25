@@ -4,7 +4,7 @@
 
 | 項目 | 內容 |
 |---|---|
-| 版本 | v0.4（依 `/codex-checkplan` 兩輪覆審修訂，核心契約凍結） |
+| 版本 | v0.5（M1/M2 實作回寫：H1 解決、L1 組行規則、AC-16） |
 | 日期 | 2026-09-25 |
 | Owner | liangRXdev |
 | Tool tier | **L1**（有臨床/教學使用者，非劑量輸出）→ 需 `README.md` + `CLAUDE.md` + `CHANGELOG.md` |
@@ -70,20 +70,24 @@ M0 實測佐證：5 場考試 30 科中 19 科有更正答案（MOD）；且已�
 | 年度考試清單 | `GET /exam/wFrmExamQandASearch.aspx?y={西元年}` | 已實測 |
 | 科目清單 | `GET /exam/wFrmExamQandASearch.aspx?y={西元年}&e={exam_code}` | 已實測 |
 | 試題 PDF | `GET /exam/wHandExamQandA_File.ashx?t=Q&code={exam_code}&c={類科}&s={科目}&q=1` | 已實測 |
-| 單科答案 PDF | `GET /exam/wHandExamQandA_File.ashx?t=S&code={exam_code}&c={類科}&s={科目}&q=1` | 已實測；ANS 或 MOD 未確認 |
-| 全考試標準答案 | `GET /exam/wHandExamQandA_File.ashx?t=A&code={exam_code}` | 已實測 |
-| 更正答案（MOD） | **未知**（H1） | M1 以 oracle 比對找出 |
+| 單科答案 PDF（ANS，初版） | `GET /exam/wHandExamQandA_File.ashx?t=S&code={exam_code}&c={類科}&s={科目}&q=1` | 已實測 |
+| 更正答案 PDF（MOD） | `GET /exam/wHandExamQandA_File.ashx?t=M&code={exam_code}&c={類科}&s={科目}&q=1` | ✅ 已實測（H1 解決）；無更正時回 302 |
+| 全考試標準答案 | `GET /exam/wHandExamQandA_File.ashx?t=A&code={exam_code}` | 已實測（未使用） |
+| 考試期日 | `GET https://wwwc.moex.gov.tw/main/exam/wFrmExamDetail.aspx?c={exam_code}` | 人工核對 `exam_date` 之來源（N10） |
 
 Base：`https://wwwq.moex.gov.tw`
 
-實測 `exam_code`：`113020`、`113090`、`114020`、`114090`、`115020`（僅為觀察，**不得據以枚舉**）。
+**頁面結構（2026-09 實測）**：年度頁含全年所有考試之完整三層結構（`td.level1` 考試 → `td.level2` 類科 → 科目列）；科目列以 `input#…chk_{code}_{c}_{s}` 標識，含 3 個 `td.exam-question-ans`（依序 Q／S／M），**無更正答案時 M 格存在但 `<a>` 無 href**（positive control 依據）。每列另有手機版重複連結，只讀桌機版。科目頁（`e=`）只含該場；**無效 code 回傳整份年度頁（HTTP 200）**，故以「頁面只含請求之 code」判定有效。每次回應之 `__VIEWSTATE`／`__EVENTVALIDATION` 皆不同。
+
+實測 universe（2026-09-25）：`113020`、`113090`、`114020`、`114090`、`115020`、`115090`（6 場 36 科；115090 不在手動 oracle 內，僅為觀察，**不得據以枚舉**）。
 
 ### 3.2 已知約束（實測）
 
 | 約束 | 說明 | 因應 |
 |---|---|---|
 | `exam_code` 不可枚舉 | 無效 code 會 redirect 回上一個有效 code，不回 404 | 必須解析 `<select>` 的 `option value`；**禁止**猜測式枚舉 |
-| 存在 session 狀態 | 跨請求沿用前次選擇（手動下載已因此取得重複檔） | `requests.Session()`；每次回應驗證 `code`；下載後以 PDF 表頭驗證身分（AC-12） |
+| 存在 session 狀態 | 跨請求沿用前次選擇（手動下載已因此取得重複檔） | 每次請求獨立、不帶 cookie；不跟隨 redirect；下載後以 PDF 表頭驗證身分（AC-12） |
+| 站方原址替換 PDF | 實測 9 份試題 PDF 被重新產生（Chrome/Skia → Word，內容相同）；114020 P3 MOD 於 2025-03-13 發布後，**2025-04-02 再追加第 73 題一律給分** | raw 不可變 + append revision；M1 oracle 比對分三類（§9） |
 | 網路資源限制 | 站方明示 | 逐檔下載，請求間 `sleep(1.5s)`，辨識性 `User-Agent` 含聯絡資訊 |
 | 引用聲明 | 註明來源、確保完整、不得增刪 | README 與每份輸出檔頭嵌入來源聲明；禁止任何題幹改寫 |
 | 官方代碼不穩定 | 檔名科目碼跨年變動且同場重複（113090 有兩個 `11`）；試題代號 113-1→113-2 變動（調劑 4306→1306） | 自訂 `P1`–`P6`（D2），官方代碼僅存 `source` |
@@ -94,11 +98,11 @@ Base：`https://wwwq.moex.gov.tw`
 | ID | 假設 | 狀態 | 依據 / 驗證方法 |
 |---|---|---|---|
 | A1 | 更正後最終答案之來源 | ✅ 已解 | 114090 三科 ANS+MOD 並存：MOD 表頭「測驗題標準答案更正」，僅 `＃` 題與 ANS 不同 |
-| A2 | 試題 PDF 具文字層 | ✅ 成立 | 每科 6.6k–13.7k 字元；`(cid:)` 0；PUA 0 |
-| A3 | 題號／選項格式跨年度一致 | ✅ 成立（113–115） | 題號 `1.`、選項 `A.`；30 科 100% 命中 |
-| H1 | MOD 可經某 `t=` 參數或頁面連結取得 | 待驗 | M1：crawler 產物 SHA256 == oracle，且雙方各自通過表頭身分驗證 |
-| H2 | 更正答案均於考後 90 天內公告 | 待驗（推論） | M1：蒐集歷年更正公告日期 |
-| H3 | MOD 備註僅有 §4.4 所列句型 | 22/22 句成立 | 新句型 → AC-11 FAIL |
+| A2 | 試題 PDF 具文字層 | ✅ 成立，**但有例外** | pdfminer 對 113020 P1 之符號字型圈號（PUA U+F00D–F012，18 字）**完全不產生字元物件** → AC-16 |
+| A3 | 題號／選項格式跨年度一致 | ✅ 成立（113–115） | 題號 `1.`、選項 `A.`；36 科 100% 命中 |
+| H1 | MOD 取得方式 | ✅ 已解 | `t=M`；crawler 產物對 oracle：53 SHA256 相同、9 站方重新產生（內容相同）、1 站方較新 |
+| H2 | 更正答案均於考後 90 天內公告 | 部分佐證 | 114020 P3：考後 53 天首次更正、73 天再次更正（皆 < 90）。其餘待累積 |
+| H3 | MOD 備註僅有 §4.4 所列句型 | 36/36 句成立（23 份 MOD） | 新句型 → AC-11 FAIL |
 
 ---
 
@@ -206,13 +210,23 @@ discovery 出現之 `exam_code` 在 `inputs/exams.json` 無對應 → 該場全�
 | 項目 | 規則 |
 |---|---|
 | CJK 相容漢字 | **僅** U+F900–FAFF、U+2F00–2FDF 逐字 NFKC；禁止全量 NFKC |
-| 全形/半形 | 標點統一全形；英數字統一半形；答案 PDF `ＡＢＣＤ` → `ABCD` |
-| 題號 / 選項標記 | 題號 `^{n}.`（依序遞增比對）；選項 `^[A-D].`；標記本身不進 L2 |
-| 空白 | 中文間空白移除；英文詞間保留單一空白 |
-| 換行 | 題幹內軟換行合併為單一空白；表格式題幹保留 `\n` |
+| 全形英數 | 全形英數（U+FF10–19、FF21–3A、FF41–5A）→ 半形；答案 PDF `ＡＢＣＤ` → `ABCD`。**標點不轉換**（v0.5：半形 `,` 轉全形會破壞 `10,000` 等數值，原規則「標點統一全形」刪除） |
+| 控制字元 | Unicode Cc（`\n` 除外）移除。實測 Word 殘留不可見 U+0081 夾於題幹與①之間，渲染無字形 |
+| 空白 | 連續空白（含 U+3000、NBSP、Tab）折疊為一；**僅兩側皆為非空白 ASCII 時保留**，其餘（中文間、中英交界）移除 |
 | 上下標 | **不還原**（D3）。115 起以字型大小 < 本文 0.8 倍判定，記錄 L2 offset |
 
-T 必須冪等：`T(T(x)) == T(x)`。T 以外之任何字元變更均為違規。
+T 逐字元 1→1（除空白折疊與控制字元移除），故 small 旗標可隨字元移動。T 必須冪等：`T(T(x)) == T(x)`。T 以外之任何字元變更均為違規。
+
+### 4.5.1 L1 組行與切分（決定性，屬 L1 定義）
+
+| 項目 | 規則 |
+|---|---|
+| 組行 | 本文字型字元以「垂直重疊 > 字高 50%」聚為一行；小字型字元（< 本文 0.8 倍）併入垂直重疊最多之本文行，再依 x 排序。**不使用** `extract_text_lines`：115 年下標以略低 baseline 排版，會被切成獨立一行並排到本行之後（`β₂ receptor` → `β receptor … 2`） |
+| 詞間空白 | (1) 有空白 glyph：丟棄之條件為「glyph 起點深入前一字元 > 1pt **且** 前後可見字元視覺間距 < 1pt」，其餘保留。Word 2013/2021 產出之 PDF 在清單標記後第一字元處放一個重疊空白（`A.g uanylyl` 實為 `A.guanylyl`，`a spirin` 實為 `aspirin`）；斜體學名之空白視覺間距 ≈ 0 但未重疊（`Streptococcus pneumoniae`）必須保留。(2) 無空白 glyph：視覺字距 ≥ 2pt 推定為空白（Skia 產出之 PDF 常省略空白 glyph）。規則依據為 2026-09 對全部 36 份試題 PDF 之空白 glyph 分類統計與渲染比對 |
+| 題號 | 行首 `{n}.`，n 必須等於下一個預期題號，**且行首 x 位於全文件最左邊界 +2pt 內**（題幹續行與選項皆為懸掛縮排，實測縮排 ≥ 10pt）。不限制 `.` 後字元（題幹可為 `14.25℃時…`、`2.57歲女性…`） |
+| 選項 | 行首 `{K}.`，K 必須等於下一個預期選項；同行內以「空白 + 下一個 K.」切出後續選項；標記本身不進 L2 |
+| 行接合 | 前一行右端 ≥ 版心右界 − 2 × 本文字級 → 軟換行：兩側為 ASCII 非連字號與 ASCII 英數時補一空白，否則直接接合；否則硬換行，保留 `\n` |
+| 首題前 | `※` 開頭 → `instruction`，其餘 → `header` |
 
 ### 4.6 `manifest.json`（acquire 產物，核心狀態）
 
@@ -267,7 +281,7 @@ manifest 只記錄**觀測到什麼、存在哪裡**；所有「判定」（univ
 
 **raw 不可變**：PDF 與 HTML 皆內容定址；同一 (tuple, kind) 出現新 hash → append revision、更新 `current`、PR 明示差異；舊檔保留，禁止覆寫。
 
-**parked 生命週期**：每個 tuple 至多一筆**當前** `parked`；問題解除後設回 `null`，歷史由 Git 保留。reason code：`fetch_fail`、`identity_mismatch`、`parse_fail`、`answer_missing`、`note_unparsed`、`format_drift`。compile 階段新產生之 parked 寫入 `release/coverage.json`（compile 不寫 manifest）。
+**parked 生命週期**：每個 tuple 至多一筆**當前** `parked`；問題解除後設回 `null`，歷史由 Git 保留。reason code：`fetch_fail`、`identity_mismatch`、`parse_fail`、`answer_missing`、`note_unparsed`、`format_drift`、`text_layer_loss`（AC-16）。compile 階段新產生之 parked 寫入 `release/coverage.json`（compile 不寫 manifest）。
 
 **PR 觸發**：僅在 revision 新增、`mod_page_rev` 之判定結果改變、`parked` 改變，或某 tuple 首次滿足 `original` 條件時開 PR；判定未變之月度重抓不開 PR（HTML 仍存入 `raw/pages/`，於下次有變更之 PR 一併提交）。
 
@@ -412,7 +426,8 @@ subject_list 頁之非 200 或 redirect 仍存入 `pages`（保留證據），co
 | AC-12 | compile 自每個 current revision 之 PDF 表頭（L1）重算之考試名稱、類科、科目、試題代號 == tuple；同一 tuple 之 Q/ANS/MOD 表頭互相一致；所有 tuple 之 `current.Q` 互異 | 六科 Q 指向同一場；Q 屬 114020 但 tuple 記為 114090；ANS/MOD 互換 |
 | AC-13 | 疊印：113020 P1 第 54 題 L2 含 `C-14` 且不含 `C-1144`；L0→L1 移除清單已記錄；**不同座標之合法相鄰重複字元（如 `C-11`、`ll`）不得被移除** | 未去重時 FAIL；以字串層級去重時合法重複被刪而 FAIL |
 | AC-14 | 逐題答案值：`corrected` 非 `＃` 題 `accepted_answers == [[MOD 表值]]`；`＃` 題 == §4.4 展開結果；`original`／`unverified` 題 == `[[ANS 表值]]` | 改一題答案值但形狀、題數、provenance 全部合法；`＃` 題展開成他題之備註 |
-| AC-15 | M0 回歸下限（v1 範圍內 5 場）：113020 P1 L0→L1 移除字元數 == 216（精確值）；`has_figure` 題集合 ⊇ {113090-P3-066, 114090-P3-008}，且含 image 物件題數 ≥ 100（M0 粗估 105，分段精確化後於 M2 改為精確值）；M0 觀測到相容漢字之 15 份試題 PDF，各自 `compat` 標籤題數 > 0；115020 各科 `script` 標籤題數 > 0 | 風險偵測器全部回傳空集合時 FAIL |
+| AC-15 | 回歸下限（以 **current revision** 為準）：113020 P1 L0→L1 移除字元數 == 696（首頁表頭 480 + 題幹 216），且 `dedupe` 偵測器於第 54 題觸發；`figure` 標籤題集合含 113090-P3-066（純向量圖）且總數 ≥ 100；`compat` 標籤涵蓋 ≥ 12 科；115020 六科皆有 `script` 標籤；八種風險標籤皆有成員。（114090 P3 第 8 題於 M0 之 oracle 版為帶框線配方表，站方替換後之現行版無框線，已不屬圖形題） | 風險偵測器全部回傳空集合時 FAIL |
+| AC-16 | 文字層交叉驗證：以 pdfium 為第二抽取器，逐頁比對非空白字元（經相容漢字正規化、排除 Cc 與連字號變體）；任一方獨有之字元 → 該科 `parked:text_layer_loss`。113020 P1 必須被偵測（圈號 U+F00D–F012 遺失） | 自 L1 移除某字元全部出現；乾淨檔案必須無差異 |
 
 ### 6.2 人工閘門（manual gate）
 
@@ -450,9 +465,9 @@ taiwan-pharmacist-exam-data/
 ├── inputs/exams.json         # 人工輸入（snapshot 一部分）
 ├── src/
 │   ├── acquire/{discover,fetch}.py   # 端點契約集中於 discover
-│   ├── compile/{derive,parse,normalize,validate,eligible}.py
+│   ├── build/{pdftext,qparse,apdf,crosscheck,derive,assemble,validate,eligible,run}.py   # 即 compile（避開 builtin 名稱）
 │   └── render/{markdown,csv,anki}.py
-├── tests/                    # AC-0 ~ AC-15 + 反例 fixtures
+├── tests/                    # AC-0 ~ AC-16 + 反例 fixtures
 ├── review/{exam_code}.json   # MG-1 證據
 ├── raw/
 │   ├── pages/{sha8}.html     # discovery 與 MOD 判定證據（不可變）
@@ -484,8 +499,8 @@ taiwan-pharmacist-exam-data/
 | M | 內容 | 出場條件 |
 |---|---|---|
 | **M0** | Parser 可行性探針 | ✅ 完成（§9.1） |
-| M1 | acquire | 5 場（113-1 ~ 115-1）全部 Q/ANS/MOD 與 discovery／subject_list HTML 取得；crawler 產物 SHA256 == oracle，且雙方各自通過 AC-12；H1 解決（MOD 連結判定規則寫入 §4.6）；manifest 通過 AC-0、AC-9 |
-| M2 | compile（derive/parse/normalize/validate/eligible） | AC-0 ~ AC-15 全綠（5 場），每條反例 fixture 皆 FAIL；可先以 oracle 為夾具與 M1 平行（universe／MOD 判定部分待 M1） |
+| M1 | acquire | ✅ 2026-09-25。universe 全部 Q/ANS/MOD 與 HTML 取得；每份 oracle 檔須落入三類之一：SHA256 相同／站方重新產生（字元多重集合相同）／站方較新（CreationDate 較晚，列出供人工確認）；雙方各自通過表頭身分驗證；H1 解決；manifest 通過 AC-9。實測 53／9／1 |
+| M2 | compile | AC-0 ~ AC-16 全綠（universe 全部場次），每條反例 fixture 皆 FAIL |
 | M3 | render | 每筆衍生記錄含 canonical `id`；規格指定之投影欄位（id、stem、options、accepted_answers、answer_status、score_policy、source 聲明）與 canonical 相等；不要求自衍生格式重建 canonical |
 | M4 | 探索 + GitHub Actions | 110–112 逐年跑相容性探索，產出報告與 parked 記錄（不進 `data/`）；cron 正常；CHANGELOG 建立 |
 
@@ -494,8 +509,8 @@ taiwan-pharmacist-exam-data/
 | 指標 | 結果 |
 |---|---|
 | 文字層字元 | 每科 6.6k–13.7k；`(cid:)` 0；PUA 0 |
-| 題數命中 | 30/30 科 == 答案 PDF（P1–P5 80 題、P6 50 題；合計 2,300 題） |
-| 選項 ABCD 結構 | 2,300/2,300 |
+| 題數命中 | 30/30 科 == 答案 PDF（P1–P5 80 題、P6 50 題；合計 2,250 題。v0.4 以前誤記為 2,300） |
+| 選項 ABCD 結構 | 2,250/2,250 |
 | 圖形 | 105 題範圍內有 image 物件；2 題僅向量物件；每頁一條貫穿頁框線須排除 |
 | CJK 相容漢字 | 約 65 處 |
 | 上下標 | 113–114 扁平化；115 小字型字元約 200 個 |
@@ -550,6 +565,20 @@ taiwan-pharmacist-exam-data/
 ---
 
 ## 修訂紀錄
+
+### v0.5（2026-09-25）— M1/M2 實作回寫
+
+| 改動 | 依據 |
+|---|---|
+| H1 解決：`t=M`；頁面結構與 positive control 依據寫入 §3.1 | M1 實測 |
+| universe 為 6 場（含 115090）；總題數更正為 2,250（M0 五場）| M1 實測；v0.4 以前誤算 |
+| 站方原址替換 PDF 列入約束；M1 出場條件改為 oracle 三分類 | 實測 9 份重新產生、1 份 MOD 二次更正 |
+| T 刪除「標點統一全形」、新增控制字元移除、空白規則精確化 | `10,000` 會被破壞；U+0081 實例 |
+| 新增 §4.5.1 L1 組行與切分規則（自組行、空白 glyph 判定、題號左邊界） | `a spirin`、`β receptor … 2`、`14.25℃` 三起靜默錯誤 |
+| 新增 AC-16 文字層交叉驗證與 reason `text_layer_loss` | 113020 P1 圈號遺失 |
+| AC-15 改以 current revision 為準（696 字、113090-P3-066） | 114090 P3 第 8 題於站方替換後已非圖形題 |
+| 跨文件身分一致性不比考試名稱全文 | 答案 PDF 列入併考類科，與試題 PDF 不同長 |
+| 程式目錄 `src/tped/build/`（即 compile） | 避開 builtin 名稱 |
 
 ### v0.4（2026-09-25）— 依 `.ai-review/plan-verdict-r2.md`
 

@@ -18,6 +18,10 @@
 - PDF 文字層含 CJK 相容漢字（U+F900–FAFF），只對該區段做 NFKC，不可全量 NFKC
 - 站方有 session 狀態：曾因此下載到重複考試，下載後必須比對 PDF 表頭考試名稱
 - 下載檔名會被截斷（`藥物分析與生藥學(含.pdf`），不可依檔名判斷科目
+- 站方會原址替換 PDF（含 MOD 二次更正），oracle/manual 可能是舊版
+- PDF 空白 glyph 不可信：Word 版在清單標記後放重疊假空白；斜體學名之真空白視覺間距 ≈ 0（規則見 spec §4.5.1，改動前先跑 test_space_rule_real）
+- pdfminer 會靜默丟棄某些符號字型字元，只有 AC-16（pdfium 交叉比對）抓得到
+- 不要用 `extract_text_lines` 切行：115 年下標會被拆成獨立行
 
 ## 架構邊界
 

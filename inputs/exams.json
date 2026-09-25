@@ -1,0 +1,38 @@
+[
+  {
+    "exam_code": "113020",
+    "exam_date": "2024-01-28",
+    "exam_date_source_url": "https://wwwc.moex.gov.tw/main/exam/wFrmExamDetail.aspx?c=113020",
+    "exam_date_source_quote": "考試日期： 113/1/26~1/28"
+  },
+  {
+    "exam_code": "113090",
+    "exam_date": "2024-07-21",
+    "exam_date_source_url": "https://wwwc.moex.gov.tw/main/exam/wFrmExamDetail.aspx?c=113090",
+    "exam_date_source_quote": "考試日期： 113/7/19~7/21"
+  },
+  {
+    "exam_code": "114020",
+    "exam_date": "2025-01-19",
+    "exam_date_source_url": "https://wwwc.moex.gov.tw/main/exam/wFrmExamDetail.aspx?c=114020",
+    "exam_date_source_quote": "考試日期： 114/1/17~1/19"
+  },
+  {
+    "exam_code": "114090",
+    "exam_date": "2025-07-20",
+    "exam_date_source_url": "https://wwwc.moex.gov.tw/main/exam/wFrmExamDetail.aspx?c=114090",
+    "exam_date_source_quote": "考試日期： 114/7/18~7/20"
+  },
+  {
+    "exam_code": "115020",
+    "exam_date": "2026-02-01",
+    "exam_date_source_url": "https://wwwc.moex.gov.tw/main/exam/wFrmExamDetail.aspx?c=115020",
+    "exam_date_source_quote": "考試日期： 115/1/30~2/1"
+  },
+  {
+    "exam_code": "115090",
+    "exam_date": "2026-07-19",
+    "exam_date_source_url": "https://wwwc.moex.gov.tw/main/exam/wFrmExamDetail.aspx?c=115090",
+    "exam_date_source_quote": "考試日期： 115/7/17~7/19"
+  }
+]

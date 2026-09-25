@@ -53,7 +53,8 @@ def apply_t(text: str, flags: list[bool] | None = None) -> tuple[str, list[int]]
         flags = [False] * len(text)
     if len(flags) != len(text):
         raise ValueError("flags 長度與文字不符")
-    mapped = [(map_char(c) if c not in _SPACES else " ", f) for c, f in zip(text, flags)]
+    # 不可見控制字元（Cc，\n 除外）移除：實測 Word 殘留 U+0081 夾於題幹與①之間
+    mapped = [(map_char(c) if c not in _SPACES else " ", f) for c, f in zip(text, flags) if c == "\n" or unicodedata.category(c) != "Cc"]
     out: list[tuple[str, bool]] = []
     i = 0
     while i < len(mapped):
@@ -82,8 +83,10 @@ def residue(s: str) -> list[str]:
             bad.append(f"compat U+{ord(ch):04X} @{i}")
         elif fullwidth_alnum_char(ch) != ch:
             bad.append(f"fullwidth {ch!r} @{i}")
-        elif ch in "　\t\r":
+        elif ch in "　\t\r ":
             bad.append(f"whitespace U+{ord(ch):04X} @{i}")
+        elif ch != "\n" and unicodedata.category(ch) == "Cc":
+            bad.append(f"control U+{ord(ch):04X} @{i}")
     if "  " in s:
         bad.append("double space")
     if s != s.strip():
