@@ -20,7 +20,12 @@
 - 題目資料：依著作權法第 9 條第 1 項第 5 款，為 Public Domain
 - 本專案自加標註：CC BY 4.0
 - 程式碼：MIT
-- 下游使用**不得改寫題幹或選項**；請保留 `source` 欄位
+- 下游使用**不得改寫題幹或選項**；請保留 `id` 與 `source` 欄位
+
+## 下游建議
+
+- 前端渲染題幹請用 `textContent`，不要用 `innerHTML`
+- 只使用 `release/questions.json`；`release/coverage.json` 列出每科是否發布及原因
 
 ---
 

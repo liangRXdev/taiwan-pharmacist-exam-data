@@ -4,12 +4,12 @@
 
 | 項目 | 內容 |
 |---|---|
-| 版本 | v0.2（M0 探針完成，需求確認定案） |
+| 版本 | v0.4（依 `/codex-checkplan` 兩輪覆審修訂，核心契約凍結） |
 | 日期 | 2026-09-25 |
 | Owner | liangRXdev |
 | Tool tier | **L1**（有臨床/教學使用者，非劑量輸出）→ 需 `README.md` + `CLAUDE.md` + `CHANGELOG.md` |
 | 授權 | 程式碼 MIT；題目資料 Public Domain（著作權法 §9 I ⑤）；自加標註 CC BY 4.0 |
-| 狀態 | M0 通過 → 技術路線定案為純規則式；待 `/codex-checkplan` 覆審後啟動 M1/M2 |
+| 狀態 | M0 通過 → 純規則式路線；核心契約（§4.6–§4.8、§5.3）凍結後啟動 M1/M2 |
 
 ---
 
@@ -25,9 +25,9 @@
 | 圖片題失真 | 結構式、層析圖、計算圖表整題無效 | 部分 |
 | 無 provenance | 無法追溯年度/科目/題號，無版本、無 diff | ✗ |
 
-錯誤答案在練習型應用中會被**反覆增強**，其危害高於「沒有題庫」。本專案的核心價值不是省時間（一年兩次，手工約 1 小時），而是 **可重現性（reproducibility）與可稽核性（auditability）**。
+錯誤答案在練習型應用中會被**反覆增強**，其危害高於「沒有題庫」。本專案的核心價值是 **可重現性（reproducibility）與可稽核性（auditability）**。
 
-M0 實測佐證「更正答案未套用」為常態而非邊緣：5 場考試 30 科中有 19 科存在更正答案（MOD）。
+M0 實測佐證：5 場考試 30 科中 19 科有更正答案（MOD）；且已實際發生兩起靜默錯誤（session 狀態致重複考試、疊印假粗體致 `C-14` → `C-1144`），兩者皆可通過純結構檢查。
 
 ---
 
@@ -38,24 +38,26 @@ M0 實測佐證「更正答案未套用」為常態而非邊緣：5 場考試 30
 | ID | 目標 |
 |---|---|
 | G1 | 從考選部考畢試題平台自動擷取藥師國考測驗式試題、初版答案（ANS）與更正答案（MOD） |
-| G2 | 產出 canonical JSON 題庫，每題具備完整 provenance（來源 URL、SHA256、擷取時間） |
-| G3 | 提供衍生格式：Markdown、CSV、Anki `.apkg`（衍生自 JSON，非獨立來源） |
-| G4 | 任何人 fork 後執行同一指令，可得到 **byte-identical** 的輸出（冪等） |
-| G5 | 所有未經規則式驗證的題目均明確標記，且預設排除於 release build |
-| G6 | v1 release 範圍：**113 年起至最新一場**（D7） |
+| G2 | 產出 canonical JSON 題庫，每題可追溯至不可變之來源 revision（URL、SHA256、擷取時間） |
+| G3 | 提供衍生格式：Markdown、CSV、Anki `.apkg`（投影自 canonical，非獨立來源） |
+| G4 | **compile 決定性**：相同 snapshot（`raw/` + `manifest.json` + `inputs/`）+ 相同 `release_date` + 相同 commit（含 `uv.lock`、鎖定之 Python 版本）+ 相同 CI runner 映像 → canonical、figures、dist 全部 byte-identical。**不承諾跨作業系統**。acquire（線上同步）不承諾決定性，其產物為帶觀測時間之新 revision |
+| G5 | release 資格於 compile 時計算（§5.4），不信任任何儲存之布林值 |
+| G6 | v1 release 範圍：**113 年起至最新一場**；範圍內每場應完整含 P1–P6（缺者須明列於 parked） |
 
 ### 2.2 非目標（v1 明確排除）
 
 | ID | 非目標 | 理由 |
 |---|---|---|
-| N1 | 生成題目詳解／解析 | 屬 LLM 生成內容，與「可稽核事實」混合會污染資料品質；留待 v2 獨立欄位 |
-| N2 | 遊戲／測驗前端 | 本專案僅為資料層。前端為下游消費者 |
+| N1 | 生成題目詳解／解析 | 屬 LLM 生成內容；留待 v2 獨立欄位 |
+| N2 | 遊戲／測驗前端 | 本專案僅為資料層 |
 | N3 | 申論式試題 | 藥師國考六科均為測驗式 |
-| N4 | 其他職類（醫師、護理師…） | 架構須可擴充，但 v1 只驗證藥師 |
-| N5 | 圖片題的圖形內容抽取 | v1 僅標記 `has_figure` 並保留整題裁切影像，不做 OCR/VLM 解讀 |
-| N6 | 上下標還原 | 屬改寫題幹；v1 只標記證據，還原延至 v2 annotation 層（D3） |
+| N4 | 其他職類 | 架構可擴充，v1 只驗證藥師 |
+| N5 | 圖片題的圖形內容抽取 | 僅標記 `has_figure` 並保留整題裁切影像 |
+| N6 | 上下標還原 | 屬改寫題幹；v1 只標記證據（D3） |
 | N7 | 科目次分類（ATC、章節） | 自建標註，若做須置於獨立 `annotations.json` |
-| N8 | LLM fallback | M0 顯示規則式命中率 100%；解析失敗的年度標 `parked`，不以 LLM 補救 |
+| N8 | LLM fallback | 解析失敗 → `parked`，不補救 |
+| N9 | 110–112 年進入 `data/` 或 release | 僅相容性探索（M4），產物為探索報告與 parked 記錄 |
+| N10 | 自動擷取 `exam_date` | 站方無結構化日期端點；人工填入附來源 URL（§4.2） |
 
 ---
 
@@ -70,85 +72,111 @@ M0 實測佐證「更正答案未套用」為常態而非邊緣：5 場考試 30
 | 試題 PDF | `GET /exam/wHandExamQandA_File.ashx?t=Q&code={exam_code}&c={類科}&s={科目}&q=1` | 已實測 |
 | 單科答案 PDF | `GET /exam/wHandExamQandA_File.ashx?t=S&code={exam_code}&c={類科}&s={科目}&q=1` | 已實測；ANS 或 MOD 未確認 |
 | 全考試標準答案 | `GET /exam/wHandExamQandA_File.ashx?t=A&code={exam_code}` | 已實測 |
-| 更正答案（MOD） | **未知**（H1） | M1 以 oracle SHA256 比對找出 |
+| 更正答案（MOD） | **未知**（H1） | M1 以 oracle 比對找出 |
 
 Base：`https://wwwq.moex.gov.tw`
 
-實測 `exam_code`：`113020`、`113090`、`114020`、`114090`、`115020`（第一次 `xxx020`、第二次 `xxx090`；僅為觀察，**不得據以枚舉**）。
+實測 `exam_code`：`113020`、`113090`、`114020`、`114090`、`115020`（僅為觀察，**不得據以枚舉**）。
 
 ### 3.2 已知約束（實測）
 
 | 約束 | 說明 | 因應 |
 |---|---|---|
 | `exam_code` 不可枚舉 | 無效 code 會 redirect 回上一個有效 code，不回 404 | 必須解析 `<select>` 的 `option value`；**禁止**猜測式枚舉 |
-| 存在 session 狀態 | 跨請求沿用前次選擇（手動下載亦曾因此取得重複檔） | `requests.Session()`，每次請求後驗證回應 `code` 與請求一致；下載後比對 PDF 表頭考試名稱 |
-| 打包功能限 8 科目 | 站方明示網路資源限制 | 逐檔下載，請求間 `sleep(1.5s)`，加 `User-Agent` 與聯絡資訊 |
-| 引用聲明 | 站方要求註明來源、確保完整、不得增刪 | README 與每份輸出檔頭嵌入來源聲明；**禁止任何形式的題幹改寫** |
+| 存在 session 狀態 | 跨請求沿用前次選擇（手動下載已因此取得重複檔） | `requests.Session()`；每次回應驗證 `code`；下載後以 PDF 表頭驗證身分（AC-12） |
+| 網路資源限制 | 站方明示 | 逐檔下載，請求間 `sleep(1.5s)`，辨識性 `User-Agent` 含聯絡資訊 |
+| 引用聲明 | 註明來源、確保完整、不得增刪 | README 與每份輸出檔頭嵌入來源聲明；禁止任何題幹改寫 |
 | 官方代碼不穩定 | 檔名科目碼跨年變動且同場重複（113090 有兩個 `11`）；試題代號 113-1→113-2 變動（調劑 4306→1306） | 自訂 `P1`–`P6`（D2），官方代碼僅存 `source` |
-| 下載檔名截斷 | 如 `藥物分析與生藥學(含.pdf` | 科目身分以 PDF 表頭為準，不以檔名為準 |
+| 下載檔名截斷 | 如 `藥物分析與生藥學(含.pdf` | 科目身分以 PDF 表頭為準 |
 
 ### 3.3 假設狀態
 
 | ID | 假設 | 狀態 | 依據 / 驗證方法 |
 |---|---|---|---|
-| A1 | 更正後最終答案之來源 | ✅ **已解** | 114090 三科同時有 ANS 與 MOD：MOD 表頭「測驗題標準答案更正」，僅 `＃` 題與 ANS 不同，其餘逐題一致 |
+| A1 | 更正後最終答案之來源 | ✅ 已解 | 114090 三科 ANS+MOD 並存：MOD 表頭「測驗題標準答案更正」，僅 `＃` 題與 ANS 不同 |
 | A2 | 試題 PDF 具文字層 | ✅ 成立 | 每科 6.6k–13.7k 字元；`(cid:)` 0；PUA 0 |
-| A3 | 題號／選項格式跨年度一致 | ✅ 成立（113–115） | 題號 `1.`、選項 `A.`；30 科題數與 ABCD 結構 100% 命中 |
-| H1 | MOD 可經某 `t=` 參數或頁面連結取得 | 待驗 | M1：crawler 產物與 oracle SHA256 相符 |
+| A3 | 題號／選項格式跨年度一致 | ✅ 成立（113–115） | 題號 `1.`、選項 `A.`；30 科 100% 命中 |
+| H1 | MOD 可經某 `t=` 參數或頁面連結取得 | 待驗 | M1：crawler 產物 SHA256 == oracle，且雙方各自通過表頭身分驗證 |
 | H2 | 更正答案均於考後 90 天內公告 | 待驗（推論） | M1：蒐集歷年更正公告日期 |
-| H3 | MOD 備註僅有「答X或Y(或XY)者均給分」「一律給分」兩類句型 | 22/22 句成立 | 出現新句型 → AC-11 FAIL，不靜默通過 |
+| H3 | MOD 備註僅有 §4.4 所列句型 | 22/22 句成立 | 新句型 → AC-11 FAIL |
 
 ---
 
 ## 4. 資料模型
 
-### 4.1 Canonical question object
+所有 JSON：UTF-8、`ensure_ascii=False`、key 依本節定義順序、縮排 2、陣列順序依各欄位規定、結尾換行。欄位不存在一律 `null`（不省略、不用空字串）。
+
+### 4.1 Canonical question object（`data/questions.json`）
 
 ```jsonc
 {
-  "id": "114-1-PHARM-P2-067",          // {民國年}-{場次}-PHARM-{P1..P6}-{題號3碼}
+  "id": "114-1-PHARM-P2-067",          // {year_roc}-{session}-PHARM-{subject}-{question_no:03d}；必須可反向解析且與欄位一致
   "exam_code": "114020",
   "year_roc": 114,
-  "session": 1,                        // 該年度第幾次
+  "session": 1,
   "profession": "pharmacist",
-  "subject": "P2",                     // 自訂穩定代碼，見 subjects.json
-  "stage": 1,                          // 由 subject 推導：P1–P3 → 1，P4–P6 → 2
+  "subject": "P2",
+  "stage": 1,                          // 由 subject 推導
   "question_no": 67,
-  "stem": "…",                         // 原文，禁止改寫
-  "options": { "A": "…", "B": "…", "C": "…", "D": "…" },  // 圖片選項可為 ""（限 AC-2 條件）
-  "accepted_answers": [["B"], ["C"], ["B", "C"]],          // 答案集合之陣列；all_credit → []
+  "stem": "…",                         // L2 文字（§4.7）
+  "options": { "A": "…", "B": "…", "C": "…", "D": "…" },
+  "accepted_answers": [["B"], ["C"], ["B", "C"]],
   "answer_status": "corrected",        // original | corrected | unverified
   "score_policy": "multi_answer",      // normal | multi_answer | all_credit
-  "answer_raw_note": "第67題答B或C或BC者均給分",  // MOD 備註逐字；無更正為 null
+  "answer_raw_note": "第67題答B或C或BC者均給分",   // 該題對應之 MOD 備註子句逐字（L1）；無則 null
   "has_figure": false,
-  "figure_refs": [],                   // 整題裁切 PNG 相對路徑
-  "flags": [],                         // 例："script_chars"
-  "script_char_offsets": [],           // flags 含 script_chars 時，stem 中小字型字元之 offset
-  "extraction": "rule",
-  "verified": true,                    // 是否通過全部 AC
-  "notes": null,
+  "figure_refs": [],                   // 整題裁切 PNG 相對路徑，依頁序
+  "empty_option_keys": [],             // 以圖形證據豁免之空選項鍵（§5.5）
+  "flags": [],                         // 依字母排序；例："script_chars"
+  "script_char_offsets": { "stem": [], "A": [], "B": [], "C": [], "D": [] },  // L2 文字之 Unicode code point offset，升冪
   "source": {
-    "subject_file_code": "0402",       // 官方檔名科目碼（不穩定，僅追溯）
-    "paper_code": "2305",              // 試題代號
-    "category_name": "藥師(一)",        // 類科名稱
+    "subject_file_code": "0402",
+    "paper_code": "2305",
+    "category_name": "藥師(一)",
     "subject_name_raw": "藥學(二)(包括藥物分析與生藥學(含中藥學))",
-    "question_url": "…", "answer_url": "…", "correction_url": "…",
-    "question_sha256": "…", "answer_sha256": "…", "correction_sha256": "…",
-    "fetched_at": "2026-09-25T00:00:00+08:00",
-    "mod_checked_at": "2026-09-25T00:00:00+08:00"
+    "question_rev": "sha256:…",        // 指向 manifest revision
+    "ans_rev": "sha256:…",             // 無 ANS → null
+    "mod_rev": "sha256:…",             // 無 MOD → null
+    "mod_page_rev": "sha256:…"         // answer_status == original 時必填：據以判定 absent 之科目頁 HTML revision
   }
 }
 ```
 
-### 4.2 考試層級物件（`exams.json`）
+**`accepted_answers` canonical 形狀**：集合內依字母升冪；集合之間依（長度，字典序）升冪；禁止重複元素與重複集合。
+
+| `score_policy` | `accepted_answers` 唯一合法形狀 |
+|---|---|
+| `normal` | 恰一個 singleton，如 `[["B"]]` |
+| `multi_answer` | ≥2 個互異非空集合，且恰等於 §4.4 句型展開結果 |
+| `all_credit` | 恰為 `[]` |
+
+**`answer_status` 與來源欄位**：
+
+| 來源組合 | `answer_status` | 答案取自 |
+|---|---|---|
+| MOD 存在（`mod_rev` 非 null） | `corrected` | MOD |
+| 僅 ANS，且 tuple 之 `mod_page_rev` 經 compile 重算為 `absent` 並符合 90 天條件（§4.6） | `original` | ANS |
+| 僅 ANS，其他情況 | `unverified` | ANS |
+| 無 ANS 且無 MOD | 不產生題目；該科 `parked`（reason `answer_missing`） | — |
+
+`answer_status` 整科一致。
+
+### 4.2 考試層級物件
+
+**輸入** `inputs/exams.json`（人工維護，屬 snapshot，compile 不得寫入、AC-5 不得刪除）：
 
 ```jsonc
 {
-  "exam_code": "114020", "year_roc": 114, "session": 1,
-  "exam_date": "…",                    // 用於 90 天 release 閘門
-  "text_fidelity": { "scripts": "flattened" }   // flattened（113–114）| size_encoded（115–）
+  "exam_code": "114020",
+  "exam_date": "2025-02-08",           // 最後一天考試日，Asia/Taipei
+  "exam_date_source_url": "https://…", // 考選部考試日程公告
+  "exam_date_source_quote": "…"        // 審查者自來源頁逐字摘錄之日期文字（MG-1 核對項）
 }
 ```
+
+**輸出** `data/exams.json`（compile 產物，可刪除重建）＝ 輸入全部欄位 + compile 推導欄位：`year_roc`、`session`、`text_fidelity: { "scripts": "flattened" | "size_encoded" }`（由 L0 是否存在小字型字元判定）。
+
+discovery 出現之 `exam_code` 在 `inputs/exams.json` 無對應 → 該場全部 tuple `withheld:[exam_date_missing]`。
 
 ### 4.3 `subjects.json`（跨年度科目對照）
 
@@ -161,86 +189,253 @@ Base：`https://wwwq.moex.gov.tw`
 | P5 | 藥學(五)(包括藥物治療學) | 藥物治療學 | 2 |
 | P6 | 藥學(六)(包括藥事行政與法規) | 藥事行政與法規 | 2 |
 
-對應以 PDF 表頭「科目名稱」（經 `dedupe_chars()`、§4.5 相容漢字正規化、去除 `(試題代號：…)` 後）精確比對；比對不到 → FAIL（不做模糊比對）。
+對應以 PDF 表頭「科目名稱」之 L1 文字，經相容漢字正規化、去除 `(試題代號：…)` 後精確比對；比對不到 → FAIL（不做模糊比對）。
 
-### 4.4 答案判定規則（決定性）
+### 4.4 MOD 備註句型（決定性，窮舉）
 
-| 來源狀態 | `answer_status` | `accepted_answers` |
-|---|---|---|
-| 有 MOD，題目非 `＃` | `corrected` | `[[MOD 答案]]` |
-| 有 MOD，`＃` + 「答X或Y或XY者均給分」 | `corrected` | `[[X],[Y],[X,Y]]`，`score_policy: multi_answer` |
-| 有 MOD，`＃` + 「答X或Y者均給分」 | `corrected` | `[[X],[Y]]`，`score_policy: multi_answer` |
-| 有 MOD，`＃` + 「一律給分」 | `corrected` | `[]`，`score_policy: all_credit` |
-| 僅 ANS，且 crawler 於 `mod_checked_at` 確認站方無 MOD | `original` | `[[ANS 答案]]` |
-| 其他（含手動 oracle、未確認 MOD 存在與否） | `unverified` | `[[ANS 答案]]` |
+| 句型（L1，經相容漢字正規化） | 展開 |
+|---|---|
+| `第{n}題答{X}或{Y}或{XY}者均給分` | `[[X],[Y],[X,Y]]`，`multi_answer` |
+| `第{n}題答{X}或{Y}者均給分` | `[[X],[Y]]`，`multi_answer` |
+| `第{n}題一律給分` | `[]`，`all_credit` |
 
-`answer_status` 為整科一致（同科所有題目同值）。
+多句以 `，` 分隔。備註全文必須被上述句型**完全消耗**（無殘餘字元）；任一殘餘 → FAIL。
 
-### 4.5 正規化規則（決定性，不可由 LLM 執行）
+### 4.5 正規化規則 T（決定性，L1 → L2）
 
 | 項目 | 規則 |
 |---|---|
-| 疊印去重 | 抽取一律先 `page.dedupe_chars()`。113020 P1 以同位置重複繪字做假粗體（題幹強調字、表頭），不去重會產生 `C-1144`（原文 `C-14`）、`lliiootthhyyrroonniinnee` 等**靜默數值錯誤**；題數與選項數仍正確，結構性 AC 抓不到 |
-| CJK 相容漢字 | **僅** U+F900–FAFF、U+2F00–2FDF 逐字做 NFKC（實測約 65 處，如 列 U+F99C、度 U+FA01）；禁止全量 NFKC（會改動全形標點、①②） |
-| 全形/半形 | 標點統一全形；英數字統一半形；答案 PDF 之 `ＡＢＣＤ` → `ABCD` |
-| 題號 / 選項標記 | 實測格式：題號 `^{n}.`（依序遞增比對，防止題幹內數字誤判）；選項 `^[A-D].` |
+| CJK 相容漢字 | **僅** U+F900–FAFF、U+2F00–2FDF 逐字 NFKC；禁止全量 NFKC |
+| 全形/半形 | 標點統一全形；英數字統一半形；答案 PDF `ＡＢＣＤ` → `ABCD` |
+| 題號 / 選項標記 | 題號 `^{n}.`（依序遞增比對）；選項 `^[A-D].`；標記本身不進 L2 |
 | 空白 | 中文間空白移除；英文詞間保留單一空白 |
 | 換行 | 題幹內軟換行合併為單一空白；表格式題幹保留 `\n` |
-| 上下標 | **不還原**（D3）。113–114 已扁平化（`Ca2+`、`Na+`），無法決定性偵測，不逐題標記；115 起以字型大小 < 本文 0.8 倍判定，標 `script_chars` 並記錄 offset |
+| 上下標 | **不還原**（D3）。115 起以字型大小 < 本文 0.8 倍判定，記錄 L2 offset |
+
+T 必須冪等：`T(T(x)) == T(x)`。T 以外之任何字元變更均為違規。
+
+### 4.6 `manifest.json`（acquire 產物，核心狀態）
+
+manifest 只記錄**觀測到什麼、存在哪裡**；所有「判定」（universe、MOD 有無、positive control）由 compile 從不可變的 HTML／PDF snapshot 重新計算，manifest 不存判定結果或布林值。
+
+```jsonc
+{
+  "schema_version": 1,
+  "pages": [                                   // 所有抓過的 HTML 頁面；依 rev 排序；append-only
+    {
+      "rev": "sha256:…", "role": "year_list",  // year_list（y=）| subject_list（y=&e=）
+      "url": "…", "fetched_at": "…", "http_status": 200, "final_url": "…",
+      "raw_path": "raw/pages/{sha8}.html"
+    }
+  ],
+  "discovery": {                               // 當前 discovery 所依頁面
+    "year_list_revs": { "2024": "sha256:…", "2025": "sha256:…", "2026": "sha256:…" },  // 西元年 → year_list 頁
+    "subject_list_revs": { "114020": "sha256:…" }                                        // exam_code → 當前 subject_list 頁
+  },
+  "tuples": [                                  // 依 (exam_code, subject) 排序；(exam_code, subject) 唯一
+    {
+      "exam_code": "114020", "subject": "P2",
+      "category_code": "…", "subject_file_code": "0402",
+      "revisions": [                           // append-only；依 (fetched_at, rev) 升冪
+        {
+          "rev": "sha256:…", "kind": "Q",      // Q | ANS | MOD
+          "url": "…", "fetched_at": "…",
+          "raw_path": "raw/114/114020/P2_Q_{sha8}.pdf"
+        }
+      ],
+      "current": { "Q": "sha256:…", "ANS": "sha256:…", "MOD": null },
+      "mod_page_rev": "sha256:…",              // 最近一次為 MOD 檢查所抓之 subject_list 頁
+      "parked": null                           // 或 { "reason": "parse_fail", "stage": "acquire|compile", "detail": "…", "since": "…" }
+    }
+  ]
+}
+```
+
+**不變量（AC-9 驗證）**：
+- `current.Q` 必填；每個非 null `current.{kind}` 在同 tuple `revisions` 中恰有一筆且 `kind` 相符。
+- `rev` 在整份 manifest 唯一；`raw_path` 存在且 SHA256 == `rev`。
+- `revisions` 依 (fetched_at, rev) 升冪。
+- `discovery` 引用之每個 rev 皆存在於 `pages`。
+
+**Universe（compile 重算）**：解析 `discovery.year_list_revs` 所指頁面之 `<select>` option，取民國 113 年起、其 subject_list 頁含類科「藥師」之 `exam_code`；universe ＝ 該集合 × {P1..P6}。`tuples` 必須與 universe **完全相等**（AC-0）。任一 year_list 頁缺失或無法解析 → 整次 compile FAIL，不得以部分 universe 繼續。
+
+**MOD 判定（compile 重算，依 H1 定案之規則）**：對 `mod_page_rev` 所指頁面：
+- `present`：頁面含該科 MOD 連結 → 必須有 `current.MOD`，否則 FAIL。
+- `absent`：以下全成立——`http_status == 200`；`final_url` 之 code == 該 `exam_code`；**positive control**：同頁同科 Q 連結可解析，且其參數與 `current.Q` 之 URL 相同；頁面不含該科 MOD 連結。
+- 其他一律 `inconclusive`。**404、空頁、解析不到任何連結皆非 `absent`。**
+- `original` 條件：判定為 `absent`，**且** 該頁 `fetched_at ≥ exam_date + 90 天**（更正窗口已過）。只看 `mod_page_rev`（最新一次），較舊的 `absent` 不得沿用。
+
+**raw 不可變**：PDF 與 HTML 皆內容定址；同一 (tuple, kind) 出現新 hash → append revision、更新 `current`、PR 明示差異；舊檔保留，禁止覆寫。
+
+**parked 生命週期**：每個 tuple 至多一筆**當前** `parked`；問題解除後設回 `null`，歷史由 Git 保留。reason code：`fetch_fail`、`identity_mismatch`、`parse_fail`、`answer_missing`、`note_unparsed`、`format_drift`。compile 階段新產生之 parked 寫入 `release/coverage.json`（compile 不寫 manifest）。
+
+**PR 觸發**：僅在 revision 新增、`mod_page_rev` 之判定結果改變、`parked` 改變，或某 tuple 首次滿足 `original` 條件時開 PR；判定未變之月度重抓不開 PR（HTML 仍存入 `raw/pages/`，於下次有變更之 PR 一併提交）。
+
+### 4.7 文字層次與字元歸屬
+
+| 層 | 定義 | 用途 |
+|---|---|---|
+| L0 | pdfplumber 原始 `page.chars` | 疊印證據、風險標籤偵測 |
+| L1 | `page.dedupe_chars()` 後之字元 | 表頭身分、MOD 備註、MG-1 比對基準 |
+| L2 | `T(L1)` | canonical `stem`/`options` |
+
+**字元歸屬契約**：每頁每個 L1 字元必須恰歸屬下列之一，記錄於 intermediate：
+- `q:{n}:stem`
+- `q:{n}:opt:{K}`
+- `q:{n}:marker`（題號／選項標記）
+- 排除類別：`header`（首頁表頭區）、`instruction`（`※` 開頭之注意事項）、`page_footer`（頁碼、`請接背面`、`背面尚有試題` 等，窮舉於 parser 設定）
+
+未歸屬或重複歸屬之字元 → 該科 `parse_fail`。L0→L1 被移除字元清單（字元、頁、座標）一併記錄。
+
+### 4.8 `release/`（compile 產物）
+
+- `release/questions.json`：eligible 題目（§5.4）
+- `release/coverage.json`：
+
+```jsonc
+{
+  "release_date": "2026-09-25",
+  "tuples": [                                  // 與 universe 一一對應，依 (exam_code, subject) 排序
+    {
+      "exam_code": "114020", "subject": "P2",
+      "status": "released",                    // released | parked | withheld
+      "reasons": [],                           // 排序陣列；released 時為 []
+      "revs": { "Q": "sha256:…", "ANS": "sha256:…", "MOD": null, "mod_page": "sha256:…" }
+    }
+  ]
+}
+```
+
+- `parked` reasons：§4.6 reason code（acquire 或 compile 產生）
+- `withheld` reasons（可多個）：`too_recent`、`unverified`、`exam_date_missing`、`mg1_missing`、`mg1_stale`、`mg1_failed`
+- `status` 優先序：`parked` > `withheld` > `released`
 
 ---
 
 ## 5. 管線架構
 
 ```
-[1] discover   → 解析年度頁 option value，產出 exam_code × 類科 × 科目 清單（含 MOD 連結是否存在）
-       ↓ manifest.json
-[2] fetch      → 下載 Q / ANS / MOD 至 raw/，計算 SHA256，寫入 manifest（含 mod_checked_at）
-       ↓ raw/{year_roc}/{exam_code}/*.pdf（進版控）
-[3] parse      → pdfplumber 文字層抽取 + 規則式 parser；依題目版面範圍判定 has_figure 並裁切 PNG
-       ↓ intermediate/*.json
-[4] validate   → 試題 × ANS × MOD 交叉驗證（獨立來源），跑全部 AC
-       ↓ data/questions.json、data/exams.json（canonical）
-[5] render     → Markdown / CSV / Anki
-       ↓ dist/
+━━ acquire（線上，非決定性；只「觀測並保存」，不做判定）━━
+[1] discover   → 抓 year_list、subject_list HTML 存入 raw/pages/，更新 manifest.discovery 與各 tuple 之 mod_page_rev
+[2] fetch      → 下載 Q / ANS / MOD，驗證表頭身分，append revision、更新 current
+       ↓ snapshot = raw/ + manifest.json + inputs/
+━━ compile（離線，決定性；輸入僅 snapshot + release_date）━━
+[3] derive     → 自 HTML 重算 universe 與 MOD 判定；自 PDF 重算表頭身分
+[4] parse      → L0 → L1 → 字元歸屬 → L2；版面範圍、圖形判定、裁切 PNG（僅讀 current revisions）
+[5] validate   → 跑自動 AC
+[6] eligible   → 計算 release 資格（§5.4）
+[7] render     → data/、release/、dist/
 ```
 
 **設計原則**
 
-1. **純規則式，無 LLM。** 解析失敗 → 該科/該年度 `parked`，不補救。
-2. **獨立來源交叉驗證。** 試題、ANS、MOD 三份 PDF 互為 oracle：題數不等、題號集合不等、ANS/MOD 非更正題不一致 → 直接失敗。
-3. **raw PDF 進版控。** 僅 crawler 產物進 `raw/`；手動下載檔置於 `oracle/manual/`（gitignore），僅作 M1 驗證基準（D5）。
-4. **`sys.exit(1)`** 於所有 `except` 區塊，確保 GitHub Actions 失敗可見。
-5. **冪等。** 裁切 PNG 固定 DPI；JSON 輸出固定 key 順序、`ensure_ascii=False`、固定縮排。
-6. 前端渲染一律 `textContent`，無 `innerHTML`。
+1. **純規則式，無 LLM。** 解析失敗 → 科目 `parked`。
+2. **保證分四類，不互相替代。**
+   - 來源身分：表頭 tuple 驗證（AC-12）
+   - 結構一致：題數、題號集合（AC-1、AC-11）
+   - 答案值：逐題來源值 == canonical（AC-14）
+   - 文字忠實度：字元歸屬 + T 可證偽性（AC-7）+ 人工抽樣（MG-1）
 
-### 5.1 圖片題判定（D4）
+   **結構檢查不能證明題幹字元忠實**（疊印案例即為反例）。
+3. **acquire 只存證據，compile 做判定。** manifest 不存 universe、MOD 有無、positive control 等判定結果。
+4. **raw 進版控且不可變**（§4.6）。手動下載檔置於 `oracle/manual/`（gitignore），僅作 M1 驗證基準。
+5. **`sys.exit(1)`** 於所有 `except` 區塊。
+6. **compile 不讀網路、不讀系統時間、不依賴前次產物、只讀 `current` revisions**；`release_date` 為必填參數。
 
-- 題目版面範圍：題號行 top ～ 下一題題號行 top（跨頁則分段）。
-- 範圍內存在任一 image 物件 → `has_figure: true`。
-- `figure_refs`：依範圍裁切整題頁面為 PNG（固定 DPI），不抽取個別 image 物件（113020 P1 單檔 5,425 個碎片物件）。
+### 5.1 時間語意
+
+- 時區：Asia/Taipei；日期比較以日為單位。
+- `age = release_date − exam_date`（天）。
+- release 資格：`age ≥ 90`。
+- `original` 答案：`mod_page_rev` 之 `fetched_at` 日期 ≥ `exam_date + 90`。
+- MOD 複查範圍（acquire）：`age ≤ 180`，以 run 當日為 `release_date`。
+
+### 5.2 端點結果分類（acquire）
+
+| 類別 | 條件 | 行為 |
+|---|---|---|
+| success | HTTP 200、預期之 Content-Type、PDF 以 `%PDF-` 開頭且可開啟、表頭身分相符 | 寫入 revision／page |
+| retryable | 逾時、429、5xx、連線錯誤 | 重試 3 次（指數退避）；仍失敗 → 本次 run 失敗，**不修改 manifest**，`sys.exit(1)` |
+| unusable | 非 PDF（HTML 偽裝）、截斷、表頭身分不符、redirect 至其他 code | 科目 `parked`（`fetch_fail`／`identity_mismatch`），`sys.exit(1)` |
+
+subject_list 頁之非 200 或 redirect 仍存入 `pages`（保留證據），compile 會判為 `inconclusive`。
+
+### 5.3 併發
+
+- GitHub Actions 設 `concurrency: sync`，`cancel-in-progress: false`，序列化執行。
+- sync PR 記錄其 base commit；base ≠ 當前 main → 視為衝突，關閉重跑，不自動 rebase。
+
+### 5.4 Release 資格（compile 時計算）
+
+題目 eligible ⇔ 以下全成立：
+
+| # | 條件 | 不成立時 `coverage` |
+|---|---|---|
+| E1 | tuple ∈ universe，manifest 與 compile 均未 parked | `parked:[reason]` |
+| E2 | tuple 全部自動 AC 通過 | `parked:[parse_fail…]` |
+| E3 | `answer_status ∈ {corrected, original}` | `withheld:[unverified]` |
+| E4 | `inputs/exams.json` 有該場且 `age ≥ 90` | `withheld:[exam_date_missing]` 或 `[too_recent]` |
+| E5 | `review/{exam_code}.json` 存在、其 revs == 本次 compile 實際使用之 current revs、全部 pass | `withheld:[mg1_missing]`／`[mg1_stale]`／`[mg1_failed]` |
+
+不符者整科列入 `coverage.json`，不得靜默缺漏。
+
+### 5.5 圖形判定（D4）
+
+- 題目版面範圍：題號行 top ～ 下一題題號行 top（跨頁分段）。選項範圍：該選項標記行 top ～ 下一選項標記（或題目範圍末端）。
+- 圖形物件：`image`、`curve`、`line`、`rect`，**排除高度 ≥ 頁高 50% 之物件**（實測每頁皆有一條貫穿頁框線）。
+- 題目範圍內有任一圖形物件 → `has_figure: true`。
+- 選項文字為空之豁免：該**選項自身範圍**內有圖形物件，並列入 `empty_option_keys`。
+- `figure_refs`：依題目範圍裁切整題頁面 PNG（DPI 150；renderer 版本由 `uv.lock` 鎖定），不抽取個別物件。
+- M0 實測：105 題範圍內有 image 物件；2 題僅有向量物件（113090 P3 第 66 題、114090 P3 第 8 題）。
 
 ---
 
-## 6. 驗收條件（CI-bound）
+## 6. 驗收條件
 
-每項對應一個 pytest 測試，CI 未全綠不得 merge。
+### 6.1 自動 AC（pytest，CI 未全綠不得 merge）
 
-| ID | 驗收條件 | 失敗處置 |
+每條皆須附**反例 fixture**：注入違規資料時該測試必須 FAIL。
+
+| ID | 可證偽斷言 | 必備反例 fixture |
 |---|---|---|
-| AC-1 | 每科解析題數 == 答案 PDF 表頭「題數」== 答案表題號數 | FAIL |
-| AC-2 | 每題選項鍵集合 == `{A,B,C,D}`；選項文字為空僅允許於 `has_figure: true` 且該選項範圍內有 image 物件 | FAIL |
-| AC-3 | `accepted_answers` 每個集合元素 ∈ `{A,B,C,D}`；`[]` 僅允許於 `score_policy == "all_credit"` | FAIL |
-| AC-4 | `id` 全域唯一 | FAIL |
-| AC-5 | 連續執行兩次 `parse+validate`，輸出（含 PNG）SHA256 相同 | FAIL |
-| AC-6 | release build 中 `verified == false` 的題目數 == 0 | FAIL |
-| AC-7 | `stem` 與 `options` 通過正規化檢查（無殘留全形英數、無雙空白、無 U+F900–FAFF / U+2F00–2FDF）；空選項依 AC-2 條件豁免 | FAIL |
-| AC-8 | release build 中 `answer_status == "unverified"` 為 0，且不含考後未滿 90 天之考試 | FAIL |
-| AC-9 | 每題 `source.*_sha256` 對應之 raw 檔存在且雜湊相符 | FAIL |
-| AC-10 | 抽樣 20 題（其中 ≥5 題 `has_figure`）人工比對 PDF 原文，字元級一致 | 手動閘門，每次新增考試執行 |
-| AC-11 | ANS 與 MOD 並存時：非 `＃` 題答案逐題相同；`＃` 題號集合 == MOD 備註中題號集合；備註每句均可被 §4.4 句型解析 | FAIL |
-| AC-12 | 每科 PDF 表頭科目名稱可精確對應 `subjects.json`；試題 PDF 與答案 PDF 表頭考試名稱一致 | FAIL |
-| AC-13 | 疊印回歸：113020 P1 第 54 題 stem 含 `C-14` 且不含 `C-1144`；parse 必經 `dedupe_chars()`（每科記錄去重字元數於 intermediate，供 diff 追蹤） | FAIL |
+| AC-0 | compile 自 `discovery` 所指 HTML 重算之 universe 非空，且 == manifest `tuples` 之 (exam_code, subject) 集合；`coverage.json` 之 tuple 集合 == universe | 刪除一科；**刪除整場六科**；**漏掉最新一場**（HTML 有、tuples 無）；重複一科；year_list 頁缺失 |
+| AC-1 | 每個非 parked tuple：答案 PDF 表頭題數 N > 0；試題題號集合 == 答案題號集合 == `{1..N}` | 題數 0、漏第 k 題、重複第 k 題 |
+| AC-2 | 每題選項標記 A→B→C→D 各恰一次且依序、皆位於該題範圍內；L2 選項文字非空，除非該鍵 ∈ `empty_option_keys` 且該選項自身範圍內有圖形物件 | 空選項但圖在他選項；選項順序錯；選項跨入下一題 |
+| AC-3 | `(score_policy, accepted_answers)` 符合 §4.1 真值表與 canonical 形狀 | `[[]]`、`normal` 配多答、未排序、重複集合 |
+| AC-4 | 每題 `id` 反向解析結果 == 各欄位；`id` 與 `(exam_code, subject, question_no)` 一對一 | ID 與 question_no 不一致、同 ID 兩題 |
+| AC-5 | CI 上兩個全新 job（相同 runner 映像、相同 `uv.lock`）對同一 snapshot、同一 `release_date` 各自 compile：`data/`、`release/`、`dist/`、figures 全部檔案 SHA256 相同；`inputs/`、`raw/`、`manifest.json` 於 compile 前後 SHA256 不變 | 注入 `datetime.now()`、dict 無序輸出、`.apkg` zip 內含時間戳時 FAIL；compile 寫入 `inputs/` 時 FAIL |
+| AC-6 | 以手寫 fixture（E1–E5 各一組：僅該條件不成立、其他皆成立）驗證 eligible 集合 == **手寫預期集合**，且 `coverage` reasons == 手寫預期；另驗 `release/questions.json` == eligible 集合 | 每個 E 條件逐項翻轉；手動刪一題 eligible 題；手動加入一題 unverified 題 |
+| AC-7 | 字元歸屬契約（§4.7）：每個 L1 字元恰歸屬一次、無未歸屬；排除類別字元僅出現在其定義區域；每段 L2 == T(該段 L1)；T 冪等；stem 非空 | **L1 與 L2 同時截斷一段而 L0 不變**；某題幹字元被歸入 `page_footer`；T 以外改字（如 `mg`→`毫克`） |
+| AC-8 | 於指定 `release_date`：release 不含 `age < 90` 之考試、不含 `unverified`；每個 `original` 題之 `mod_page_rev` 經重算為 `absent`，且其 `fetched_at` ≥ `exam_date + 90` | `age == 89`；`original` 但頁面 redirect；`original` 但 absent 觀測在考後第 60 天；positive control 之 Q 參數 ≠ `current.Q` |
+| AC-9 | manifest 不變量（§4.6）全部成立；canonical 每個 `*_rev` == 該 tuple `current` 對應值（`mod_page_rev` == tuple `mod_page_rev`） | `current` 指向他 kind 或不存在之 rev；新增 current 後 canonical 仍指舊 rev；rev 重複 |
+| AC-11 | 對**每個有 MOD 之科目**：MOD 答案表覆蓋 `{1..N}`；`＃` 題號集合 == 備註題號集合（無重複、越界、額外）；備註被 §4.4 完全消耗；若 ANS 並存：非 `＃` 題 ANS == MOD 逐題相同 | MOD-only 科目備註缺一句；備註多一題；ANS/MOD 非 `＃` 題不同；未知句型 |
+| AC-12 | compile 自每個 current revision 之 PDF 表頭（L1）重算之考試名稱、類科、科目、試題代號 == tuple；同一 tuple 之 Q/ANS/MOD 表頭互相一致；所有 tuple 之 `current.Q` 互異 | 六科 Q 指向同一場；Q 屬 114020 但 tuple 記為 114090；ANS/MOD 互換 |
+| AC-13 | 疊印：113020 P1 第 54 題 L2 含 `C-14` 且不含 `C-1144`；L0→L1 移除清單已記錄；**不同座標之合法相鄰重複字元（如 `C-11`、`ll`）不得被移除** | 未去重時 FAIL；以字串層級去重時合法重複被刪而 FAIL |
+| AC-14 | 逐題答案值：`corrected` 非 `＃` 題 `accepted_answers == [[MOD 表值]]`；`＃` 題 == §4.4 展開結果；`original`／`unverified` 題 == `[[ANS 表值]]` | 改一題答案值但形狀、題數、provenance 全部合法；`＃` 題展開成他題之備註 |
+| AC-15 | M0 回歸下限（v1 範圍內 5 場）：113020 P1 L0→L1 移除字元數 == 216（精確值）；`has_figure` 題集合 ⊇ {113090-P3-066, 114090-P3-008}，且含 image 物件題數 ≥ 100（M0 粗估 105，分段精確化後於 M2 改為精確值）；M0 觀測到相容漢字之 15 份試題 PDF，各自 `compat` 標籤題數 > 0；115020 各科 `script` 標籤題數 > 0 | 風險偵測器全部回傳空集合時 FAIL |
+
+### 6.2 人工閘門（manual gate）
+
+| ID | 內容 | CI 驗證方式 |
+|---|---|---|
+| MG-1 | 每場一份 `review/{exam_code}.json`：（a）核對 `inputs/exams.json` 之日期與來源頁一致，摘錄 `exam_date_source_quote`；（b）以下演算法選出 20 題，逐題比對 PDF 視覺原文與 L2（預期差異僅限 T） | 證據檔存在；revs == 本次 compile 使用之 current revs；題目 ID 集合 == 以演算法重算之集合；每題有 pass/fail 與審查者 |
+
+**MG-1 抽樣演算法（決定性）**：
+
+1. 候選集合：該場全部題目，依 `id` 排序。
+2. 風險標籤由 **L0 層偵測器**產生，不依賴 parser 分段結果：
+   - `figure`：題目範圍內有圖形物件
+   - `dedupe`：L0→L1 有移除
+   - `compat`：含相容漢字
+   - `script`：含小字型字元
+   - `table`：範圍內有 ≥2 條水平線
+   - `crosspage`：跨頁
+   - `corrected`：`＃` 題
+   - `edge`：各科第 1 題與最後一題
+3. 貪婪覆蓋：依上列標籤順序，每個標籤若尚未被已選題覆蓋，選該標籤成員中 `sha256(seed + id)` 最小者。
+4. 已選 > 20：依標籤順序保留至 20 題（每標籤至少一題優先）；< 20：自剩餘候選依 `sha256(seed + id)` 升冪補足。
+5. `seed` = 該場六科 `current.Q` rev 依 subject 排序串接。
+6. 某標籤於該場無成員 → 證據檔記錄「不適用」；AC-15 確保 v1 範圍內偵測器不會整體失效。
 
 ---
 
@@ -248,31 +443,26 @@ Base：`https://wwwq.moex.gov.tw`
 
 ```
 taiwan-pharmacist-exam-data/
-├── README.md                 # 含來源聲明與授權
-├── CLAUDE.md                 # ≤40 行，僅寫無法從程式碼推斷者
-├── CHANGELOG.md
-├── spec.md                   # 本文件
-├── pyproject.toml            # uv 管理
-├── subjects.json             # 科目對照（D2）
+├── README.md / CLAUDE.md / CHANGELOG.md / spec.md
+├── pyproject.toml + uv.lock  # uv 管理；Python 版本鎖定
+├── subjects.json
+├── manifest.json             # acquire 產物（§4.6）
+├── inputs/exams.json         # 人工輸入（snapshot 一部分）
 ├── src/
-│   ├── discover.py           # 端點契約集中於此
-│   ├── fetch.py
-│   ├── parse.py
-│   ├── normalize.py          # 正規化規則，純函式
-│   ├── validate.py
+│   ├── acquire/{discover,fetch}.py   # 端點契約集中於 discover
+│   ├── compile/{derive,parse,normalize,validate,eligible}.py
 │   └── render/{markdown,csv,anki}.py
-├── tests/                    # AC-1 ~ AC-9、AC-11 ~ AC-13
-├── raw/{year_roc}/{exam_code}/   # crawler 產物（進版控）
-├── oracle/manual/            # 手動下載檔（gitignore，M1 驗證後可刪）
-├── data/
-│   ├── questions.json        # canonical
-│   ├── exams.json
-│   └── figures/              # 整題裁切 PNG
-├── dist/                     # 衍生格式（gitignore，由 CI 產出）
+├── tests/                    # AC-0 ~ AC-15 + 反例 fixtures
+├── review/{exam_code}.json   # MG-1 證據
+├── raw/
+│   ├── pages/{sha8}.html     # discovery 與 MOD 判定證據（不可變）
+│   └── {year_roc}/{exam_code}/{subject}_{kind}_{sha8}.pdf   # 不可變
+├── oracle/manual/            # 手動下載檔（gitignore）
+├── data/{questions,exams}.json + figures/   # compile 產物
+├── release/{questions,coverage}.json         # compile 產物
+├── dist/                     # 衍生格式（gitignore，CI 產出）
 └── .github/workflows/sync.yml
 ```
-
-`progress.md` / `plan.md` **不進版控**。
 
 ---
 
@@ -280,23 +470,24 @@ taiwan-pharmacist-exam-data/
 
 | 項目 | 設定 |
 |---|---|
-| 觸發 | GitHub Actions cron，每月 1 日 + `workflow_dispatch` |
-| 行為 | (1) `discover` 比對 `manifest.json`，發現新 `exam_code` → 全管線；(2) **重新檢查 180 天內之考試是否新增 MOD** → 有則更新答案（D6）；兩者皆開 PR，**不自動 merge** |
-| Release 閘門 | 考後未滿 90 天之考試不進 release build |
-| 人工閘門 | PR 需通過 AC-10 抽樣比對後方可 merge |
+| 觸發 | cron 每月 1 日 + `workflow_dispatch`；`concurrency: sync` 序列化 |
+| 行為 | acquire：(1) 重抓 year_list，發現新 `exam_code`；(2) 對 `age ≤ 180` 之考試重抓 subject_list 頁；符合 §4.6「PR 觸發」條件才 compile（`release_date` = run 當日 Asia/Taipei，寫入 PR 描述）並開 PR，**不自動 merge** |
+| 人工閘門 | 新考試或 current revs 變更 → MG-1 證據須隨 PR 提交，否則該場 `withheld:[mg1_*]` |
 | 失敗 | `sys.exit(1)`；Actions 紅燈即為通知 |
 
 ---
 
 ## 9. 里程碑
 
-| M | 內容 | 出場條件 | 狀態 |
-|---|---|---|---|
-| **M0** | Parser 可行性探針 | 文字層、題號/選項命中率、圖片題佔比 | ✅ 完成（見 §9.1） |
-| M1 | `discover` + `fetch` + manifest | 5 場（113-1 ~ 115-1）全部 Q/ANS/MOD 下載；**SHA256 與 `oracle/manual/` 全數相符**；H1 解決 | — |
-| M2 | `parse` + `normalize` + `validate` | AC-1~AC-9、AC-11~AC-13 全綠（5 場）；可先以 oracle 為夾具與 M1 平行 | — |
-| M3 | `render` 三格式 | Markdown/CSV/Anki 均由 canonical JSON 產出且可 round-trip 驗證 | M2 |
-| M4 | 回填 + GitHub Actions | 110–112 逐年嘗試，未達 100% 者標 `parked`（不設數量下限）；cron 正常；CHANGELOG 建立 | M3 |
+核心契約（§4.6 manifest／MOD 判定／raw revision／parked、§4.7 字元歸屬、§4.8 coverage、§5.4 release 資格）於 v0.4 凍結；變更須更新 spec 版本並記入修訂紀錄。cron 與衍生格式在後。
+
+| M | 內容 | 出場條件 |
+|---|---|---|
+| **M0** | Parser 可行性探針 | ✅ 完成（§9.1） |
+| M1 | acquire | 5 場（113-1 ~ 115-1）全部 Q/ANS/MOD 與 discovery／subject_list HTML 取得；crawler 產物 SHA256 == oracle，且雙方各自通過 AC-12；H1 解決（MOD 連結判定規則寫入 §4.6）；manifest 通過 AC-0、AC-9 |
+| M2 | compile（derive/parse/normalize/validate/eligible） | AC-0 ~ AC-15 全綠（5 場），每條反例 fixture 皆 FAIL；可先以 oracle 為夾具與 M1 平行（universe／MOD 判定部分待 M1） |
+| M3 | render | 每筆衍生記錄含 canonical `id`；規格指定之投影欄位（id、stem、options、accepted_answers、answer_status、score_policy、source 聲明）與 canonical 相等；不要求自衍生格式重建 canonical |
+| M4 | 探索 + GitHub Actions | 110–112 逐年跑相容性探索，產出報告與 parked 記錄（不進 `data/`）；cron 正常；CHANGELOG 建立 |
 
 ### 9.1 M0 結果（2026-09-25，oracle/manual 5 場 30 科）
 
@@ -305,14 +496,12 @@ taiwan-pharmacist-exam-data/
 | 文字層字元 | 每科 6.6k–13.7k；`(cid:)` 0；PUA 0 |
 | 題數命中 | 30/30 科 == 答案 PDF（P1–P5 80 題、P6 50 題；合計 2,300 題） |
 | 選項 ABCD 結構 | 2,300/2,300 |
-| 圖片選項（空選項文字） | 約 45 題，集中於 P1、P2 |
+| 圖形 | 105 題範圍內有 image 物件；2 題僅向量物件；每頁一條貫穿頁框線須排除 |
 | CJK 相容漢字 | 約 65 處 |
-| 上下標 | 113–114 扁平化；115 有小字型字元約 200 個 |
-| 疊印假粗體 | 全部試題 PDF 首頁表頭；題幹內僅 113020 P1（216 字元）→ 須 `dedupe_chars()` |
-| 科目對應 | 經去重 + 相容漢字正規化後 63/63 PDF 表頭精確對應 `subjects.json`（未正規化時 11 份失配，如 行 U+FA08、理 U+F9E4） |
-| 更正答案 | 19/30 科有 MOD；114090 三科 ANS+MOD 並存供 A1 驗證 |
-
-→ 判定：**純規則式路線**。
+| 上下標 | 113–114 扁平化；115 小字型字元約 200 個 |
+| 疊印假粗體 | 全部試題 PDF 首頁表頭；題幹內僅 113020 P1（216 字元） |
+| 科目對應 | L1 + 相容漢字正規化後 63/63 PDF 表頭精確對應 `subjects.json` |
+| 更正答案 | 19/30 科有 MOD；114090 三科 ANS+MOD 並存 |
 
 ---
 
@@ -320,36 +509,98 @@ taiwan-pharmacist-exam-data/
 
 | 風險 | 影響 | 機率 | 緩解 |
 |---|---|---|---|
-| MOD 端點不明（H1） | 無法自動取得更正答案 | 中 | M1 以 oracle SHA256 反推；未解則 `answer_status` 全為 `unverified`，AC-8 阻擋 release |
-| 更正晚於 90 天公告（H2） | 已發布之初版答案錯誤 | 低 | 180 天 MOD 複查 + PR；H2 以歷年公告日期驗證 |
-| MOD 備註新句型（H3） | 答案語意解析錯誤 | 低 | AC-11 FAIL，不靜默 |
+| MOD 端點不明（H1） | 無法取得更正答案、無法判定 `absent` | 中 | 未解則所有 ANS-only 科目 `unverified`，AC-8 阻擋 |
+| 更正晚於 90 天公告（H2） | 已發布初版答案錯誤 | 低 | 180 天複查 + PR |
+| MOD 備註新句型（H3） | 答案語意錯誤 | 低 | AC-11 完全消耗檢查 → FAIL |
+| 站方原址替換 PDF | provenance 斷裂 | 低 | raw 不可變 + append revision（§4.6） |
 | 站方改版／端點變更 | 管線中斷 | 中 | 端點契約集中於 `discover.py`；CI 紅燈 |
-| Session 狀態導致取得錯誤考試 | 資料錯置（手動下載已發生一次） | 中 | 回應 code 驗證 + AC-12 表頭比對 |
-| 爬取被視為濫用 | 存取受限 | 低 | 1.5s 節流、辨識性 User-Agent、月頻、raw 進版控 |
-| 跨年度格式漂移（110–112） | 舊年度解析失敗 | 高 | 逐年加入；失敗標 `parked`，不以 LLM 補救 |
-| 扁平化上下標歧義（如 `10-15`） | 下游誤讀數值 | 中 | 不改寫；`exams.json` 標 `text_fidelity`，README 明示 |
-| 下游應用改寫題幹 | 違反站方引用聲明 | 中 | README 明列使用條款；JSON 內嵌 `source` 使改寫可被偵測 |
+| Session 狀態致錯置 | 資料錯置（已發生一次） | 中 | 回應 code 驗證 + AC-12 表頭與 Q 互異 |
+| 爬取被視為濫用 | 存取受限 | 低 | 1.5s 節流、辨識性 UA、月頻 |
+| 跨年度格式漂移 | 舊年度解析失敗 | 高 | 110–112 僅探索（N9） |
+| 扁平化上下標歧義 | 下游誤讀數值 | 中 | 不改寫；`text_fidelity` + README 明示 |
+| 下游改寫題幹 | 違反引用聲明 | 中 | README 使用條款；`id` + `source` 可偵測 |
 
 ---
 
-## 11. 決策紀錄（2026-09-25 需求確認）
+## 11. 決策紀錄
 
 | # | 決策 | 理由 |
 |---|---|---|
-| D1 | `accepted_answers` 為答案集合陣列；`answer_raw_note` 逐字保留 | 「答A或B」與「答A或B或AB」語意不同，單一陣列無法區分 |
-| D2 | 自訂 `P1`–`P6`；官方代碼僅存 `source` | 檔名科目碼、試題代號皆跨年變動 |
-| D3 | 上下標不還原，僅標記證據 | 還原即改寫；`10-15` 等歧義無法決定性判斷 |
-| D4 | 圖片題納入 release，整題裁切 | 排除會使 P1 系統性缺題；裁切為忠實呈現 |
-| D5 | 手動下載檔僅作 M1 oracle，不進版控 | 無 URL/擷取時間，無法滿足 G2 |
-| D6 | `original` 須 crawler 確認無 MOD；180 天複查；90 天 release 閘門 | 寧可延遲發布，不發布將被更正之答案 |
-| D7 | v1 release 限 113 年起 | 以實測格式範圍為準，不為湊年數放寬驗證 |
+| D1 | `accepted_answers` 為答案集合陣列，canonical 排序；`answer_raw_note` 逐字 | 「答A或B」≠「答A或B或AB」 |
+| D2 | 自訂 `P1`–`P6`；官方代碼僅存 `source` | 官方代碼跨年變動 |
+| D3 | 上下標不還原，僅標記證據 | 還原即改寫 |
+| D4 | 圖片題納入 release，整題裁切；圖形含向量物件 | 排除會使 P1 系統性缺題；實測有純向量圖題 |
+| D5 | 手動下載檔僅作 M1 oracle | 無 URL/擷取時間 |
+| D6 | `original` 須 compile 重算 `absent`（見 D12）；180 天複查；90 天閘門 | 寧可延遲，不發布將被更正之答案 |
+| D7 | v1 release 限 113 年起；110–112 僅探索 | 以實測格式範圍為準 |
+| D8 | acquire／compile 分離，僅 compile 承諾決定性 | 線上同步與 byte-identical 本質衝突 |
+| D9 | 刪除逐題 `verified`，release 資格 compile 時計算 | 儲存之布林值會與其所代表的驗證漂移 |
+| D10 | parked 粒度為科目；同場其他科可發布，但 `coverage.json` 必列；manifest 只存當前 parked，歷史交 Git | 寧缺勿錯，缺漏必須可見；避免自建事件史 |
+| D11 | acquire 只存證據（HTML／PDF），universe、MOD 有無、表頭身分全部由 compile 重算 | 儲存之判定結果與布林值不可重驗 |
+| D12 | `original` 僅依最新一次 subject_list 頁，且須於考後 ≥90 天抓取 | 舊的 absent 不代表更正窗口已過 |
+| D13 | 人工輸入集中於 `inputs/`，與 compile 產物分離 | clean build 不得刪除人工資料 |
 
 ---
 
 ## 12. 下一步
 
-1. `/codex-checkplan` 覆審本規格。
-2. M1（crawler，解 H1）與 M2（parser，以 `oracle/manual/` 為夾具）平行啟動。
+1. M1（acquire，首要解 H1）與 M2（compile，以 `oracle/manual/` 為夾具）平行啟動。
+2. 實作完成後以 `/codex-review` 區塊 4 對照本規格稽核（特別是 AC 反例 fixture 是否真的存在且會 FAIL）。
+
+---
+
+## 修訂紀錄
+
+### v0.4（2026-09-25）— 依 `.ai-review/plan-verdict-r2.md`
+
+| 改動 | 依據 |
+|---|---|
+| manifest 新增 `pages`、`discovery`；universe 由 compile 自 HTML 重算；AC-0 反例加「刪整場」「漏最新一場」 | S1-1、S3-1 |
+| `inputs/exams.json`（人工、snapshot）與 `data/exams.json`（compile 投影）分離；D13；AC-5 驗 inputs 不變 | S1-2 |
+| parked 改為 tuple 內單一當前狀態，歷史交 Git | S1-3、S4-3 |
+| `original` 僅依最新 `mod_page_rev`，且抓取於考後 ≥90 天；D12 | S1-4 |
+| `coverage.json` 結構化 schema、多原因、狀態優先序、綁 release_date 與 revs | S1-5 |
+| MOD 判定改由 compile 自 HTML 重算；positive control 須與 `current.Q` URL 一致；移除 `mod_observations` 與 `mod_observation_id`，改為 `mod_page_rev`；D11 | S2-1、S4-2 |
+| compile 只讀 current；AC-9 加 canonical rev == current 與 manifest 不變量 | S2-2、S2-3、S3-7 |
+| G4／AC-5 限定鎖定工具鏈 + CI runner 映像，不承諾跨作業系統 | S2-4、S3-3 |
+| 新增 AC-14 逐題答案值 | S3-2 |
+| AC-6 改為手寫預期集合 + E1–E5 逐項翻轉 | S3-4 |
+| §4.7 字元歸屬契約；AC-7 反例「L1+L2 同時截斷」 | S3-5 |
+| `exam_date_source_quote` 併入 MG-1 核對 | S3-6 |
+| MG-1 單一貪婪覆蓋演算法；風險標籤來自 L0 偵測器；新增 AC-15 M0 回歸下限 | S3-8（部分接受）、S4-5 |
+| PR 僅在判定改變時開啟 | S4-2 |
+
+### v0.3（2026-09-25）— 依 `.ai-review/plan-verdict.md`
+
+| 改動 | 依據 |
+|---|---|
+| G4 拆 acquire／compile；新增 D8；AC-5 擴至全部 compile 產物、自乾淨狀態重跑 | R2-1、R3-AC5、R4-1 |
+| 新增 §4.6 manifest schema（tuples、revisions、current、mod_observations、parked） | R2-4、R4-3 |
+| negative MOD observation 定義（positive control、404/空頁非 absent） | R1-3、R2-2 |
+| raw 不可變、內容定址路徑、append revision | R1-5 |
+| parked 狀態模型、reason code、科目粒度；D10；`coverage.json` | R1-2 |
+| universe 完整性 AC-0；`coverage.json` 恰覆蓋一次 | R1-1、R3-C2 |
+| §5.2 端點結果三分類 | R1-4 |
+| §5.3 `concurrency` 序列化 + base commit 衝突 | R1-6（部分接受） |
+| §5.1 時區與日期語意；`release_date` 顯式參數；compile 不讀系統時間 | R1-7 |
+| 欄位 null 語意；`*_rev` 取代 url/sha256 重複欄位 | R1-8 |
+| `script_char_offsets` 改 L2 code point、涵蓋 options | R1-9 |
+| N9：110–112 僅探索；M4 改寫 | R1-10 |
+| 刪除 `verified`、`extraction`；§5.4 release 資格；D9；AC-6 改集合相等 | R2-3、R3-AC6、R4-2 |
+| 設計原則 2 改為四類保證並明示結構不證忠實 | R2-5（部分接受） |
+| §5.5 圖形含向量物件、排除頁框、逐選項豁免、`empty_option_keys` | R2-6、R3-AC2 |
+| §4.7 L0/L1/L2 三層；MG-1 比對基準明定 | R2-7 |
+| `accepted_answers` canonical 形狀與真值表 | R2-8、R3-AC3 |
+| `textContent` 移至 README | R2-9 |
+| AC 拆自動／人工；MG-1 證據檔綁 revision | R3-C1 |
+| M1 oracle 與 crawler 各自通過 AC-12 | R3-C3 |
+| AC-1、AC-4、AC-7、AC-9、AC-12 改寫為可證偽斷言；每條附反例 fixture | R3-AC1/4/7/9/12 |
+| AC-8 綁 negative observation；`exam_date` 人工填入附來源（N10） | R3-AC8（部分接受） |
+| MG-1 決定性分層抽樣 | R3-AC10、R4-6 |
+| AC-11 擴至所有 MOD 科目、完全消耗檢查 | R3-AC11 |
+| AC-13 加合法重複反例與移除清單（不測 dedupe_chars 內部幾何） | R3-AC13（部分接受） |
+| M3 round-trip 改投影追溯 | R4-4 |
+| §9 核心契約凍結順序 | R4-5 |
 
 ---
 
