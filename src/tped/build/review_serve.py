@@ -31,6 +31,7 @@ class Store:
         self.m = manifest.load()
         self.questions = {r["id"]: r for r in jsonio.load(ROOT / "data" / "questions.json")}
         self.lock = threading.Lock()
+        self.render_lock = threading.Lock()
         self.cache: dict[tuple, bytes] = {}
 
     def review_path(self, code: str) -> Path:
@@ -62,7 +63,16 @@ class Store:
             raise KeyError(f"{code}/{subject}")
         return t
 
+    # pdfium 非 thread-safe：並行渲染會在 C 層 abort（exit 3、無 traceback），一律序列化
     def question_png(self, qid: str, j: int) -> bytes:
+        with self.render_lock:
+            return self._question_png(qid, j)
+
+    def answer_png(self, code: str, subject: str, kind: str) -> bytes:
+        with self.render_lock:
+            return self._answer_png(code, subject, kind)
+
+    def _question_png(self, qid: str, j: int) -> bytes:
         key = ("q", qid, j)
         if key not in self.cache:
             q = self.questions[qid]
@@ -75,7 +85,7 @@ class Store:
             self.cache[key] = _png(img)
         return self.cache[key]
 
-    def answer_png(self, code: str, subject: str, kind: str) -> bytes:
+    def _answer_png(self, code: str, subject: str, kind: str) -> bytes:
         key = ("a", code, subject, kind)
         if key not in self.cache:
             t = self._tuple(code, subject)
@@ -190,6 +200,7 @@ def main(argv: list[str]) -> int:
     if not (ROOT / "data" / "questions.json").exists() or not list((ROOT / "review").glob("*.json")):
         print("請先執行 tped compile 與 tped review-init", file=sys.stderr)
         return 1
+    import pdfplumber.display  # noqa: F401  於主執行緒初始化 pdfium，避免首批請求並行 init_lib
     srv = ThreadingHTTPServer(("127.0.0.1", a.port), make_handler(Store(), a.port))
     print(f"[review] http://127.0.0.1:{a.port}/  （Ctrl+C 結束）")
     try:
