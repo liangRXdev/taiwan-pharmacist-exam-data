@@ -1,0 +1,206 @@
+{
+  "exam_code": "113020",
+  "revs": {
+    "P1": {
+      "Q": "sha256:05cfd28f9e49c85fd044a0f79a7ec2aae3f0d1ac531e256bd48dc69ffaee42f2",
+      "ANS": "sha256:64c3696535c884e45a0b7fcd2941e4f4c7b6bd78ebe2cdf1f8a27865911be3fd",
+      "MOD": "sha256:e7200b8ff90577a54ca8da9a51fb2f8b6a5f2942c8fa220d885ab9b5c8eaa191",
+      "mod_page": "sha256:c9825db3bd7ac44af41319664f04653a201ddbcbdf6f6f743551b3a7860bba81"
+    },
+    "P2": {
+      "Q": "sha256:faddb642f775ad7923a89ff3f3a1ffb7a264d903a15acf5b9ae6dd44ab3dde20",
+      "ANS": "sha256:c9b8c1fe16c4094c71bf5e25539cc50c6e10ecc63e19ba0a741e5e05e797919a",
+      "MOD": "sha256:7bf67445e5cfc5264e94d6bbfc4339b45c4c5d70b7761af0d7a1a5744079ea31",
+      "mod_page": "sha256:c9825db3bd7ac44af41319664f04653a201ddbcbdf6f6f743551b3a7860bba81"
+    },
+    "P3": {
+      "Q": "sha256:a56b69bb299b9712002c2feb6e6883250d934338590848e60722f51bf7f4961a",
+      "ANS": "sha256:94a0f510f7589232dec1695305e93a11e0a65978db27d341afda42382706b7c2",
+      "MOD": "sha256:eac0d643992b87c90c11821e4b6d5c0c8752af626136c191f614909f256b3f78",
+      "mod_page": "sha256:c9825db3bd7ac44af41319664f04653a201ddbcbdf6f6f743551b3a7860bba81"
+    },
+    "P4": {
+      "Q": "sha256:a096a3a1bd800e1568202e81c5128de8f85aeff5ad0c3f9d0914a9638e11fdd8",
+      "ANS": "sha256:d5986a0f612e87810104f75680058f7f03dcdacd164fcc30cb997aa805a89840",
+      "MOD": null,
+      "mod_page": "sha256:c9825db3bd7ac44af41319664f04653a201ddbcbdf6f6f743551b3a7860bba81"
+    },
+    "P5": {
+      "Q": "sha256:8e304fb14dd491236e4733a053d21fcfcf6e0d9d93fd43f1e36872b2ff9eeb7f",
+      "ANS": "sha256:79fca457fbfe0f381b644cd973049b5d9407942b9a95badbcf46467b1c495d3d",
+      "MOD": "sha256:f05aa60e7431815ba6a8be39287b44fd52985a759214f82eff40dbd1fccce144",
+      "mod_page": "sha256:c9825db3bd7ac44af41319664f04653a201ddbcbdf6f6f743551b3a7860bba81"
+    },
+    "P6": {
+      "Q": "sha256:af5d2afbf479a9d4a079e70b250fcc06232841a27d203a250e2697b842c7b67e",
+      "ANS": "sha256:aa7f1441befb94a3fecde4218e6fc0d2d2badc4378ac1c5cb8e6d79c5e25cf6b",
+      "MOD": null,
+      "mod_page": "sha256:c9825db3bd7ac44af41319664f04653a201ddbcbdf6f6f743551b3a7860bba81"
+    }
+  },
+  "exam_date": "2024-01-28",
+  "exam_date_source_url": "https://wwwc.moex.gov.tw/main/exam/wFrmExamDetail.aspx?c=113020",
+  "exam_date_source_quote": "",
+  "not_applicable": [
+    "dedupe",
+    "script",
+    "table"
+  ],
+  "items": [
+    {
+      "id": "113-1-PHARM-P2-032",
+      "labels": [
+        "compat"
+      ],
+      "result": null,
+      "reviewer": "",
+      "note": ""
+    },
+    {
+      "id": "113-1-PHARM-P2-055",
+      "labels": [],
+      "result": null,
+      "reviewer": "",
+      "note": ""
+    },
+    {
+      "id": "113-1-PHARM-P2-069",
+      "labels": [],
+      "result": null,
+      "reviewer": "",
+      "note": ""
+    },
+    {
+      "id": "113-1-PHARM-P2-074",
+      "labels": [],
+      "result": null,
+      "reviewer": "",
+      "note": ""
+    },
+    {
+      "id": "113-1-PHARM-P3-001",
+      "labels": [
+        "edge"
+      ],
+      "result": null,
+      "reviewer": "",
+      "note": ""
+    },
+    {
+      "id": "113-1-PHARM-P3-002",
+      "labels": [],
+      "result": null,
+      "reviewer": "",
+      "note": ""
+    },
+    {
+      "id": "113-1-PHARM-P3-009",
+      "labels": [],
+      "result": null,
+      "reviewer": "",
+      "note": ""
+    },
+    {
+      "id": "113-1-PHARM-P3-032",
+      "labels": [
+        "corrected"
+      ],
+      "result": null,
+      "reviewer": "",
+      "note": ""
+    },
+    {
+      "id": "113-1-PHARM-P3-038",
+      "labels": [],
+      "result": null,
+      "reviewer": "",
+      "note": ""
+    },
+    {
+      "id": "113-1-PHARM-P3-041",
+      "labels": [
+        "crosspage"
+      ],
+      "result": null,
+      "reviewer": "",
+      "note": ""
+    },
+    {
+      "id": "113-1-PHARM-P3-050",
+      "labels": [],
+      "result": null,
+      "reviewer": "",
+      "note": ""
+    },
+    {
+      "id": "113-1-PHARM-P3-052",
+      "labels": [
+        "crosspage"
+      ],
+      "result": null,
+      "reviewer": "",
+      "note": ""
+    },
+    {
+      "id": "113-1-PHARM-P3-063",
+      "labels": [
+        "figure"
+      ],
+      "result": null,
+      "reviewer": "",
+      "note": ""
+    },
+    {
+      "id": "113-1-PHARM-P3-080",
+      "labels": [
+        "crosspage",
+        "edge"
+      ],
+      "result": null,
+      "reviewer": "",
+      "note": ""
+    },
+    {
+      "id": "113-1-PHARM-P4-021",
+      "labels": [],
+      "result": null,
+      "reviewer": "",
+      "note": ""
+    },
+    {
+      "id": "113-1-PHARM-P4-032",
+      "labels": [],
+      "result": null,
+      "reviewer": "",
+      "note": ""
+    },
+    {
+      "id": "113-1-PHARM-P4-077",
+      "labels": [],
+      "result": null,
+      "reviewer": "",
+      "note": ""
+    },
+    {
+      "id": "113-1-PHARM-P5-042",
+      "labels": [],
+      "result": null,
+      "reviewer": "",
+      "note": ""
+    },
+    {
+      "id": "113-1-PHARM-P5-077",
+      "labels": [],
+      "result": null,
+      "reviewer": "",
+      "note": ""
+    },
+    {
+      "id": "113-1-PHARM-P6-034",
+      "labels": [],
+      "result": null,
+      "reviewer": "",
+      "note": ""
+    }
+  ]
+}
