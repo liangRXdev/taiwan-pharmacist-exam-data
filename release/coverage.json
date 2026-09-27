@@ -1,5 +1,5 @@
 {
-  "release_date": "2026-09-25",
+  "release_date": "2026-09-27",
   "tuples": [
     {
       "exam_code": "113020",
@@ -18,10 +18,8 @@
     {
       "exam_code": "113020",
       "subject": "P2",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:faddb642f775ad7923a89ff3f3a1ffb7a264d903a15acf5b9ae6dd44ab3dde20",
         "ANS": "sha256:c9b8c1fe16c4094c71bf5e25539cc50c6e10ecc63e19ba0a741e5e05e797919a",
@@ -32,10 +30,8 @@
     {
       "exam_code": "113020",
       "subject": "P3",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:a56b69bb299b9712002c2feb6e6883250d934338590848e60722f51bf7f4961a",
         "ANS": "sha256:94a0f510f7589232dec1695305e93a11e0a65978db27d341afda42382706b7c2",
@@ -46,10 +42,8 @@
     {
       "exam_code": "113020",
       "subject": "P4",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:a096a3a1bd800e1568202e81c5128de8f85aeff5ad0c3f9d0914a9638e11fdd8",
         "ANS": "sha256:d5986a0f612e87810104f75680058f7f03dcdacd164fcc30cb997aa805a89840",
@@ -60,10 +54,8 @@
     {
       "exam_code": "113020",
       "subject": "P5",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:8e304fb14dd491236e4733a053d21fcfcf6e0d9d93fd43f1e36872b2ff9eeb7f",
         "ANS": "sha256:79fca457fbfe0f381b644cd973049b5d9407942b9a95badbcf46467b1c495d3d",
@@ -74,10 +66,8 @@
     {
       "exam_code": "113020",
       "subject": "P6",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:af5d2afbf479a9d4a079e70b250fcc06232841a27d203a250e2697b842c7b67e",
         "ANS": "sha256:aa7f1441befb94a3fecde4218e6fc0d2d2badc4378ac1c5cb8e6d79c5e25cf6b",
@@ -88,10 +78,8 @@
     {
       "exam_code": "113090",
       "subject": "P1",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:22513a500b5d625d586b0555f9d206dcbd7b27e16bdb72af5668710931cd3375",
         "ANS": "sha256:4debd9093924767b56e45fa158b3052cdbc8932cd66b95c6e1c2cfec016e8bd5",
@@ -102,10 +90,8 @@
     {
       "exam_code": "113090",
       "subject": "P2",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:d985b87ddd978c1d43f7a47a7471adcf93ceb0a8c5f844e256299cc38d6fb4e3",
         "ANS": "sha256:5b1a112b15b02f4825ee698db19d07cd610779ef2c795c18f1680b3647457680",
@@ -116,10 +102,8 @@
     {
       "exam_code": "113090",
       "subject": "P3",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:ba3ac1f1b44a1de523c1301529d5e5206dd2d60f2ea7c1278074f19eddb871af",
         "ANS": "sha256:2e58e35e20ecc584bb27cd3aa9966d15afee30b61358396b061e9a712052f9ba",
@@ -130,10 +114,8 @@
     {
       "exam_code": "113090",
       "subject": "P4",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:ce2fd78f98c82fb2e7527b0d8992a93459f457b19faf720e8d9b21451edb2e61",
         "ANS": "sha256:9135b130cb459e2f3d7363f335d86950334f839f6c1846db2ab4868b3405796a",
@@ -144,10 +126,8 @@
     {
       "exam_code": "113090",
       "subject": "P5",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:7f7b13f92505c2a6dd609c8d5721c45e357044335361bf357537fe2c0e450026",
         "ANS": "sha256:d78ea1a92c7851eed8b7b077a4ba813aee2c005ba92ca8eee277e7d21eb86fb4",
@@ -158,10 +138,8 @@
     {
       "exam_code": "113090",
       "subject": "P6",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:10cb7cb58ae0fb99656e5081e0efce308003cd61024f76226a34ed770fa7d31e",
         "ANS": "sha256:9c18cd09daac63e5a837910b34c933004223536f3f7fe14cd7ec3886245fdbbe",
@@ -172,10 +150,8 @@
     {
       "exam_code": "114020",
       "subject": "P1",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:88bca51b254b308be8c18aa92d047b9050d4f521ea641038376f13576b69eb32",
         "ANS": "sha256:54c57d9e209f78a4b3695cf4f4d61651c02039306add63fdba8f4d97a00dc6dc",
@@ -186,10 +162,8 @@
     {
       "exam_code": "114020",
       "subject": "P2",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:0e92bb21f5c562468b21a91d7f1a80b1709f40ac9ef9359bf2cab901aaeca9f4",
         "ANS": "sha256:8d8cdaf786ca099c85d920579d3a78b5bca3925874b7456e9a707e2c4de68597",
@@ -200,10 +174,8 @@
     {
       "exam_code": "114020",
       "subject": "P3",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:7fbb974471aa6b53f2191955f21c4400ee6c9a2fa35eced4474ba3234b33ec1b",
         "ANS": "sha256:1c062363f0c7d6be76e9560d9499aad155e9076b85d9c7569bdad7912fa3ab27",
@@ -214,10 +186,8 @@
     {
       "exam_code": "114020",
       "subject": "P4",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:610b28e225bcaa701344af90b9f7e9857389f478f71b186e30e486e2331e474d",
         "ANS": "sha256:e2f4953b9a68412e6d6f71568143ff7a89e1994aa76075b09edcd13e4e9d6cf0",
@@ -228,10 +198,8 @@
     {
       "exam_code": "114020",
       "subject": "P5",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:1e419086ebf8fb6a2d952d0e5784945e6db06cbe7f2eafb8bf44b4535ae54805",
         "ANS": "sha256:338b804b2e315bbf934981cba99e011eb57e590ea6539d21d377e9213a93392b",
@@ -242,10 +210,8 @@
     {
       "exam_code": "114020",
       "subject": "P6",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:df575dc4fce7afebb3a7679cd7a39f6a34f77d9478b835f92aa0bffa6f08ddb9",
         "ANS": "sha256:168cd17879207f349bf988402cb8dc7c28daf2b861bf972daf7a8bd6aec38d3f",
@@ -256,10 +222,8 @@
     {
       "exam_code": "114090",
       "subject": "P1",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:1254a02d5f291b9426a0da4bf5ed226e9fd87fee3a9d9aef967579c0a0fb1121",
         "ANS": "sha256:4c728c48a9721ea4681192e27797a123363060eafd7e932ef6f9e89d6cd22036",
@@ -270,10 +234,8 @@
     {
       "exam_code": "114090",
       "subject": "P2",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:f7d6c6b7ce2871db8ac9747b2cdc6dbf9bc121692bf346ed670abe2c3ca0ffdf",
         "ANS": "sha256:d7d68cc9d8bed3b20250ce56eadc4da536bc46adc7b5b586419f446c73cba1a0",
@@ -284,10 +246,8 @@
     {
       "exam_code": "114090",
       "subject": "P3",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:37e0d0f26efad4d7848ebb17f4f08ae20f8df3b3d472ab5e6ba78d4203f2ad4f",
         "ANS": "sha256:5247e0bed886396b2dddee4c733a0fa2436cb54589f130de354e5146bf3ffc61",
@@ -298,10 +258,8 @@
     {
       "exam_code": "114090",
       "subject": "P4",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:07716ebf8892d2391dfc97a1e23312d0a3f6a56a0ee5397d1ab154e7bd4e7e69",
         "ANS": "sha256:8ec04d39ea906d10c3cd9446ead00f912dcd7ab6317e49bb61dc028a7e4fe421",
@@ -312,10 +270,8 @@
     {
       "exam_code": "114090",
       "subject": "P5",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:37019f32dedebba16512f34637d84a2584017f7eca53b0d2f10f00a8de74513f",
         "ANS": "sha256:52123a2f828cee29aad8decf84a4432700f36e5a407ec444dc212aa31d92e1c6",
@@ -326,10 +282,8 @@
     {
       "exam_code": "114090",
       "subject": "P6",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:0468d27cb6f5e11f1ba62f92c6f4dafa15b411550b7c63e340854a7d2304fe34",
         "ANS": "sha256:1f5b752134093b72bb8acc7e3e7b5ae91183f451583c92ce9b2ddee3562ebfeb",
@@ -340,10 +294,8 @@
     {
       "exam_code": "115020",
       "subject": "P1",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:ebf8c6ef4531552372c3b77bd88ab889d74a770a83afdfc7ffb3bc9ddad67a5b",
         "ANS": "sha256:f5d27f0cfa995cf4eac70945b33e5e088b7901284d266730f46802c244a9e012",
@@ -354,10 +306,8 @@
     {
       "exam_code": "115020",
       "subject": "P2",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:54898fc64b078f4d589debd265b909f44087de1b201c9a03d4a2b775eec45e26",
         "ANS": "sha256:7bec9e5ff3873e39ac0fae6cb45731959ef5200c4a458ce17d5e78a6ad6bbeec",
@@ -368,10 +318,8 @@
     {
       "exam_code": "115020",
       "subject": "P3",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:3f841455e082acd4bbb406d6d0af28c7bfdbbae9362b5720e819bd2bc34f5d56",
         "ANS": "sha256:525b8de990b37abe815285893b01422081b4911c5aa86d0aec690cd6c3ce0064",
@@ -382,10 +330,8 @@
     {
       "exam_code": "115020",
       "subject": "P4",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:685ad59bddcdafe7b1cdf0757d150950d0a61a950b1af7e0c2a86705eb70f71e",
         "ANS": "sha256:3117ad7d2a91acebbeedc73923bdbcebdae1d8e80bf90d582a3ff917efefeb55",
@@ -396,10 +342,8 @@
     {
       "exam_code": "115020",
       "subject": "P5",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:e20b2c2e6b5b3a34f859ddd73c5a4e4daf30734b6e79c4bf36fda050e07ecf0f",
         "ANS": "sha256:0338e4a2c578245bc2b47aa436e329365bda60d5b633f6396a6608db978242e2",
@@ -410,10 +354,8 @@
     {
       "exam_code": "115020",
       "subject": "P6",
-      "status": "withheld",
-      "reasons": [
-        "mg1_pending"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:c89ff72e74c726a62930bdb7428418788504dda022c2bda16fdbe9163e067ae6",
         "ANS": "sha256:fc7245837a3fd2a337d6ac49f872884f76bd3f7817197b66b073258f0345574b",

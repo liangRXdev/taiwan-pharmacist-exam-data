@@ -40,7 +40,7 @@
   },
   "exam_date": "2026-02-01",
   "exam_date_source_url": "https://wwwc.moex.gov.tw/main/exam/wFrmExamDetail.aspx?c=115020",
-  "exam_date_source_quote": "",
+  "exam_date_source_quote": "115/1/30~2/1",
   "not_applicable": [
     "dedupe",
     "table"
@@ -49,22 +49,22 @@
     {
       "id": "115-1-PHARM-P1-013",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
       "id": "115-1-PHARM-P1-032",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
       "id": "115-1-PHARM-P1-036",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
@@ -73,8 +73,8 @@
         "figure",
         "script"
       ],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
@@ -82,15 +82,15 @@
       "labels": [
         "script"
       ],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
       "id": "115-1-PHARM-P2-007",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
@@ -99,8 +99,8 @@
         "crosspage",
         "corrected"
       ],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
@@ -108,22 +108,22 @@
       "labels": [
         "script"
       ],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
       "id": "115-1-PHARM-P2-069",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
       "id": "115-1-PHARM-P3-032",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
@@ -132,8 +132,8 @@
         "script",
         "crosspage"
       ],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
@@ -141,8 +141,8 @@
       "labels": [
         "script"
       ],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
@@ -150,8 +150,8 @@
       "labels": [
         "script"
       ],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
@@ -159,29 +159,29 @@
       "labels": [
         "compat"
       ],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
       "id": "115-1-PHARM-P5-014",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
       "id": "115-1-PHARM-P5-051",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
       "id": "115-1-PHARM-P5-076",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
@@ -189,8 +189,8 @@
       "labels": [
         "edge"
       ],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
@@ -198,15 +198,15 @@
       "labels": [
         "crosspage"
       ],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
       "id": "115-1-PHARM-P6-034",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     }
   ]

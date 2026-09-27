@@ -2,7 +2,7 @@
 
 考選部藥師國考測驗式試題的結構化、可稽核題庫。純規則式抽取（無 LLM），每題可追溯至不可變之來源 PDF revision，並套用官方更正答案。
 
-> **狀態：M1（擷取）、M2（編譯）完成；release 尚待 MG-1 人工抽樣審查**，目前 `release/questions.json` 為空。規格見 [`spec.md`](spec.md)。
+> **狀態：M1（擷取）、M2（編譯）、MG-1（人工抽樣）完成**；`release/questions.json` 收錄 5 場 29 科 2,170 題（release_date 2026-09-27）。115 年第二次考後未滿 90 天，暫不發布。規格見 [`spec.md`](spec.md)。
 
 ## 範圍
 

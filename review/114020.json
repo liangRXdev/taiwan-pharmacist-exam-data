@@ -40,7 +40,7 @@
   },
   "exam_date": "2025-01-19",
   "exam_date_source_url": "https://wwwc.moex.gov.tw/main/exam/wFrmExamDetail.aspx?c=114020",
-  "exam_date_source_quote": "",
+  "exam_date_source_quote": "114/1/17~1/19",
   "not_applicable": [
     "dedupe",
     "table"
@@ -49,8 +49,8 @@
     {
       "id": "114-1-PHARM-P1-003",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
@@ -59,36 +59,36 @@
         "compat",
         "crosspage"
       ],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
       "id": "114-1-PHARM-P1-011",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
       "id": "114-1-PHARM-P1-048",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
       "id": "114-1-PHARM-P1-054",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
       "id": "114-1-PHARM-P1-069",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
@@ -96,15 +96,15 @@
       "labels": [
         "crosspage"
       ],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
       "id": "114-1-PHARM-P2-065",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
@@ -113,8 +113,8 @@
         "figure",
         "crosspage"
       ],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
@@ -122,8 +122,8 @@
       "labels": [
         "corrected"
       ],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
@@ -131,22 +131,22 @@
       "labels": [
         "edge"
       ],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
       "id": "114-1-PHARM-P4-033",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
       "id": "114-1-PHARM-P4-067",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
@@ -154,15 +154,15 @@
       "labels": [
         "script"
       ],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
       "id": "114-1-PHARM-P6-003",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
@@ -170,22 +170,22 @@
       "labels": [
         "crosspage"
       ],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
       "id": "114-1-PHARM-P6-019",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
       "id": "114-1-PHARM-P6-024",
       "labels": [],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
@@ -193,8 +193,8 @@
       "labels": [
         "crosspage"
       ],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     },
     {
@@ -202,8 +202,8 @@
       "labels": [
         "crosspage"
       ],
-      "result": null,
-      "reviewer": "",
+      "result": "pass",
+      "reviewer": "LiangRxdev",
       "note": ""
     }
   ]
