@@ -163,8 +163,8 @@ function render() {
     $("label", { for: "quote", class: "field" }, $("div", { class: "k" }, "exam_date_source_quote（逐字）")),
     $("textarea", { id: "quote", oninput: e => { d.exam_date_source_quote = e.target.value; scheduleSave(); } }, d.exam_date_source_quote || ""),
     d.not_applicable.length ? $("div", { class: "alert alert--info" }, `本場無成員之風險標籤（記為不適用）：${d.not_applicable.join("、")}`) : null,
-    blocking.length ? $("div", { class: "alert alert--warn" }, `尚不能放行：${blocking.join("；")}`)
-      : p.fails ? $("div", { class: "alert alert--error" }, `有 ${p.fails} 題不符：本場將維持 withheld:[mg1_failed]，不會進 release`)
+    p.fails ? $("div", { class: "alert alert--error" }, `有 ${p.fails} 題不符：本場將維持 withheld:[mg1_failed]，不會進 release`)
+      : blocking.length ? $("div", { class: "alert alert--warn" }, `尚未審完（withheld:[mg1_pending]）：${blocking.join("；")}`)
       : $("div", { class: "alert alert--info" }, "✓ 全部通過：重跑 tped compile 後本場即可進 release")));
 
   const list = $("aside", { class: "card list" }, $("ol", {}, d.items.map((it, i) => $("li", {},

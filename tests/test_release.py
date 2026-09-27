@@ -36,6 +36,8 @@ EXAM = date(2025, 2, 8)
     (_st(), EXAM, None, "withheld", ["mg1_missing"]),                                             # E5
     (_st(), EXAM, {"revs": {"P1": {"Q": "old"}}, "result": "pass"}, "withheld", ["mg1_stale"]),   # E5
     (_st(), EXAM, {"revs": REVS, "result": "fail"}, "withheld", ["mg1_failed"]),                  # E5
+    (_st(), EXAM, {"revs": REVS, "result": "pending"}, "withheld", ["mg1_pending"]),              # E5 未審完≠不符
+    (_st(), EXAM, {"revs": REVS, "result": "stale"}, "withheld", ["mg1_stale"]),                  # E5 樣本不符
     (_st(answer_status="unverified"), None, None, "withheld", ["exam_date_missing", "mg1_missing", "unverified"]),
 ])
 def test_ac6_eligibility(state, exam_date, review, expect_status, expect_reasons):
@@ -48,9 +50,17 @@ def test_ac6_release_equals_eligible(compiled):
     released = {(c["exam_code"], c["subject"]) for c in compiled["coverage"] if c["status"] == "released"}
     got = {(r["exam_code"], r["subject"]) for r in compiled["release"]}
     assert got == released
-    # 目前無 MG-1 證據 → release 必須為空（不得因缺證據而放行）
-    assert compiled["release"] == []
-    assert all("mg1_missing" in c["reasons"] for c in compiled["coverage"] if c["status"] == "withheld")
+    # 不依賴審查進度：MG-1 證據未全數 pass 之場次，不得有任何科目放行
+    import json
+    mg1 = {c["exam_code"]: json.loads((compiled["out"] / "intermediate" / "mg1" / f"{c['exam_code']}.json").read_text(encoding="utf-8"))
+           for c in compiled["coverage"]}
+    for code, m in mg1.items():
+        v = run._review_verdict(run._load_review(code), m["sample"])
+        if v is None or v["result"] != "pass" or v["revs"] != m["revs"]:
+            assert not any(e == code for e, _ in released), f"{code} MG-1 未通過卻放行"
+    mg1_reasons = {"mg1_missing", "mg1_stale", "mg1_pending", "mg1_failed"}
+    assert all(set(c["reasons"]) & mg1_reasons for c in compiled["coverage"]
+               if c["status"] == "withheld" and not {"unverified", "exam_date_missing", "too_recent"} & set(c["reasons"]))
 
 
 # ---------- AC-8：MOD 判定與 original ----------
@@ -121,10 +131,18 @@ def test_mg1_review_verdict():
     assert run._review_verdict(bad, sample)["result"] == "fail"
     wrong = copy.deepcopy(ok)
     wrong["items"] = wrong["items"][:1]
-    assert run._review_verdict(wrong, sample)["result"] == "fail", "樣本與演算法重算不符"
+    assert run._review_verdict(wrong, sample)["result"] == "stale", "樣本與演算法重算不符"
     noquote = copy.deepcopy(ok)
     noquote["exam_date_source_quote"] = ""
-    assert run._review_verdict(noquote, sample)["result"] == "fail", "未核對考試日期來源"
+    assert run._review_verdict(noquote, sample)["result"] == "pending", "未核對考試日期來源"
+    blank = {"revs": REVS, "exam_date_source_quote": "", "items": [{"id": i, "result": None, "reviewer": "", "note": ""} for i in sample]}
+    assert run._review_verdict(blank, sample)["result"] == "pending", "review-init 剛產生之空範本 = 未審，非不符"
+    noreviewer = copy.deepcopy(ok)
+    noreviewer["items"][0]["reviewer"] = ""
+    assert run._review_verdict(noreviewer, sample)["result"] == "pending"
+    mixed = copy.deepcopy(blank)
+    mixed["items"][0]["result"] = "fail"
+    assert run._review_verdict(mixed, sample)["result"] == "fail", "已有不符時優先於未審完"
 
 
 # ---------- AC-5：兩次乾淨 compile 位元組相同，且不改動 snapshot ----------

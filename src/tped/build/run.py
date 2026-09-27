@@ -41,13 +41,24 @@ def _load_review(code: str) -> dict | None:
 
 
 def _review_verdict(review: dict | None, sample: list[str]) -> dict | None:
-    """回傳供 eligible 判定之 {revs, result}；樣本不符或任一題非 pass → fail。"""
+    """回傳供 eligible 判定之 {revs, result}。
+
+    result 優先序：樣本與演算法重算不符 → stale；任一題 fail → fail；
+    有題未判定、缺審查者或缺日期摘錄 → pending；其餘 → pass。
+    """
     if review is None:
         return None
     items = {it["id"]: it for it in review.get("items", [])}
-    ok = (sorted(items) == sample and all(it.get("result") == "pass" and it.get("reviewer") for it in items.values())
-          and bool(review.get("exam_date_source_quote")))
-    return {"revs": review.get("revs"), "result": "pass" if ok else "fail"}
+    if sorted(items) != sample:
+        result = "stale"
+    elif any(it.get("result") == "fail" for it in items.values()):
+        result = "fail"
+    elif not (all(it.get("result") == "pass" and it.get("reviewer") for it in items.values())
+              and review.get("exam_date_source_quote")):
+        result = "pending"
+    else:
+        result = "pass"
+    return {"revs": review.get("revs"), "result": result}
 
 
 def _render_figures(res: assemble.TupleResult, q_path: Path, out: Path) -> None:

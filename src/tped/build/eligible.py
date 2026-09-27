@@ -30,8 +30,10 @@ def withheld_reasons(st: TupleState, exam_date: date | None, release_date: date,
         out.append("too_recent")
     if review is None:
         out.append("mg1_missing")
-    elif review.get("revs") != exam_revs:
+    elif review.get("revs") != exam_revs or review.get("result") == "stale":
         out.append("mg1_stale")
+    elif review.get("result") == "pending":
+        out.append("mg1_pending")
     elif review.get("result") != "pass":
         out.append("mg1_failed")
     return sorted(out)

@@ -4,7 +4,7 @@
 
 | 項目 | 內容 |
 |---|---|
-| 版本 | v0.5（M1/M2 實作回寫：H1 解決、L1 組行規則、AC-16） |
+| 版本 | v0.6（MG-1 未審與不符分離：`mg1_pending`） |
 | 日期 | 2026-09-25 |
 | Owner | liangRXdev |
 | Tool tier | **L1**（有臨床/教學使用者，非劑量輸出）→ 需 `README.md` + `CLAUDE.md` + `CHANGELOG.md` |
@@ -321,7 +321,7 @@ manifest 只記錄**觀測到什麼、存在哪裡**；所有「判定」（univ
 ```
 
 - `parked` reasons：§4.6 reason code（acquire 或 compile 產生）
-- `withheld` reasons（可多個）：`too_recent`、`unverified`、`exam_date_missing`、`mg1_missing`、`mg1_stale`、`mg1_failed`
+- `withheld` reasons（可多個）：`too_recent`、`unverified`、`exam_date_missing`、`mg1_missing`、`mg1_stale`、`mg1_pending`、`mg1_failed`
 - `status` 優先序：`parked` > `withheld` > `released`
 
 ---
@@ -389,7 +389,7 @@ subject_list 頁之非 200 或 redirect 仍存入 `pages`（保留證據），co
 | E2 | tuple 全部自動 AC 通過 | `parked:[parse_fail…]` |
 | E3 | `answer_status ∈ {corrected, original}` | `withheld:[unverified]` |
 | E4 | `inputs/exams.json` 有該場且 `age ≥ 90` | `withheld:[exam_date_missing]` 或 `[too_recent]` |
-| E5 | `review/{exam_code}.json` 存在、其 revs == 本次 compile 實際使用之 current revs、全部 pass | `withheld:[mg1_missing]`／`[mg1_stale]`／`[mg1_failed]` |
+| E5 | `review/{exam_code}.json` 存在、其 revs == 本次 compile 實際使用之 current revs、全部 pass | `withheld:[mg1_missing]`／`[mg1_stale]`（revs 或樣本集合不符）／`[mg1_failed]`（任一題 fail）／`[mg1_pending]`（無 fail 但有題未判定、缺審查者或缺日期摘錄） |
 
 不符者整科列入 `coverage.json`，不得靜默缺漏。
 
@@ -565,6 +565,12 @@ taiwan-pharmacist-exam-data/
 ---
 
 ## 修訂紀錄
+
+### v0.6（2026-09-27）— MG-1 狀態細分
+
+| 改動 | 依據 |
+|---|---|
+| 新增 withheld reason `mg1_pending`；樣本集合不符改判 `mg1_stale` | review-init 剛產生之空範本被判 `mg1_failed`，與「人工判定不符」無法區分 |
 
 ### v0.5（2026-09-25）— M1/M2 實作回寫
 
