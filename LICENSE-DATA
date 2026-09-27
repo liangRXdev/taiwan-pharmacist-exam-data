@@ -1,18 +1,35 @@
 資料授權（Data License）
 
-1. 試題與答案原文（題幹、選項、標準答案、更正答案）
+資料來源：考選部考畢試題查詢平臺
+https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx
 
-   來源：考選部考畢試題查詢平臺
-   https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx
+1. 試題（題幹、選項）
 
    依著作權法第 9 條第 1 項第 5 款「依法令舉行之各類考試試題及其備用試題」
-   不得為著作權之標的，屬 Public Domain。
+   不得為著作權之標的。參見經濟部智慧財產局 96 年 1 月 9 日電子郵件 960109a 函釋
+   （https://www.tipo.gov.tw/tw/copyright/692-12649.html）。
 
    下游使用不得改寫題幹或選項；引用時請註明資料來源並確保資料之完整，
    不得任意增刪。
 
-2. 本專案自加之標註與衍生欄位（id、accepted_answers、score_policy、
-   風險標籤、coverage、source 追溯欄位、整題裁切影像之裁切範圍等）
+2. 答案（標準答案、更正答案及其備註）
+
+   上開函釋明示「考試試題之答案並不屬於本款規範之內容」，故答案不以
+   第 9 條第 1 項第 5 款為依據。
+
+   本專案之判斷（非主管機關見解）：標準答案僅為選項代號，屬事實性資料，
+   不具原創性，不構成著作；更正答案備註為考選部公告之內容。
+   本專案僅忠實轉錄，不主張任何權利。
+
+3. 試題所含圖表
+
+   依上開函釋，原受著作權保護之內容，不因被用為依法令舉行考試之試題而
+   喪失著作財產權。試題所含圖表（含 data/figures/ 之整題裁切影像）若轉載自
+   第三方著作，其權利不因收錄於本資料集而改變；下游如需重製或散布，
+   請自行判斷是否構成合理使用或取得授權。
+
+4. 本專案自加之標註與衍生欄位（id、accepted_answers、score_policy、
+   風險標籤、coverage、source 追溯欄位等）
 
    Creative Commons Attribution 4.0 International (CC BY 4.0)
    https://creativecommons.org/licenses/by/4.0/
@@ -20,14 +37,21 @@
    姓名標示：taiwan-pharmacist-exam-data（liangRxdev）
    請保留每題之 `id` 與 `source` 欄位。
 
-3. 程式碼：MIT，見 LICENSE。
+5. 程式碼：MIT，見 LICENSE。
+
+本文件非法律意見。
 
 ---
 
 Data License (English summary)
 
-- Exam questions and answers: public domain under Article 9(1)(v) of the
-  Taiwan Copyright Act (examination questions held pursuant to law).
-  Do not alter question stems or options.
+- Question stems and options: not subject to copyright under Article 9(1)(v)
+  of the Taiwan Copyright Act (examinations held pursuant to law), per TIPO
+  ruling 960109a (2007-01-09). Do not alter stems or options.
+- Answer keys: the same ruling states answers are NOT covered by Art. 9(1)(v).
+  This project considers answer keys (option letters) to be non-original facts;
+  corrections are transcribed from official MOEX announcements. No rights claimed.
+- Figures inside questions may be reproduced from third-party works and remain
+  subject to their original rights.
 - Annotations and derived fields added by this project: CC BY 4.0.
-- Code: MIT (see LICENSE).
+- Code: MIT (see LICENSE). This is not legal advice.
