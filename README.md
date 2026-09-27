@@ -37,8 +37,8 @@ uv run pytest                                    # AC-0 ~ AC-16
 ## 使用條款
 
 - 題目資料：依著作權法第 9 條第 1 項第 5 款，為 Public Domain
-- 本專案自加標註：CC BY 4.0
-- 程式碼：MIT
+- 本專案自加標註：CC BY 4.0（見 [`LICENSE-DATA`](LICENSE-DATA)）
+- 程式碼：MIT（見 [`LICENSE`](LICENSE)）
 - 下游使用**不得改寫題幹或選項**；請保留 `id` 與 `source` 欄位
 
 ## 下游建議

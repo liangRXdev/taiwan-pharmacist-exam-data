@@ -1,0 +1,33 @@
+資料授權（Data License）
+
+1. 試題與答案原文（題幹、選項、標準答案、更正答案）
+
+   來源：考選部考畢試題查詢平臺
+   https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx
+
+   依著作權法第 9 條第 1 項第 5 款「依法令舉行之各類考試試題及其備用試題」
+   不得為著作權之標的，屬 Public Domain。
+
+   下游使用不得改寫題幹或選項；引用時請註明資料來源並確保資料之完整，
+   不得任意增刪。
+
+2. 本專案自加之標註與衍生欄位（id、accepted_answers、score_policy、
+   風險標籤、coverage、source 追溯欄位、整題裁切影像之裁切範圍等）
+
+   Creative Commons Attribution 4.0 International (CC BY 4.0)
+   https://creativecommons.org/licenses/by/4.0/
+
+   姓名標示：taiwan-pharmacist-exam-data（liangRxdev）
+   請保留每題之 `id` 與 `source` 欄位。
+
+3. 程式碼：MIT，見 LICENSE。
+
+---
+
+Data License (English summary)
+
+- Exam questions and answers: public domain under Article 9(1)(v) of the
+  Taiwan Copyright Act (examination questions held pursuant to law).
+  Do not alter question stems or options.
+- Annotations and derived fields added by this project: CC BY 4.0.
+- Code: MIT (see LICENSE).
