@@ -4,8 +4,8 @@
 
 | 項目 | 內容 |
 |---|---|
-| 版本 | v0.7（頁面 revision 新增條件：subject_list digest 限藥師科目列） |
-| 日期 | 2026-09-25 |
+| 版本 | v0.8（排程暫緩，改手動流程） |
+| 日期 | 2026-10-28 |
 | Owner | liangRXdev |
 | Tool tier | **L1**（有臨床/教學使用者，非劑量輸出）→ 需 `README.md` + `CLAUDE.md` + `CHANGELOG.md` |
 | 授權 | 程式碼 MIT；題目資料 Public Domain（著作權法 §9 I ⑤）；自加標註 CC BY 4.0 |
@@ -291,7 +291,7 @@ manifest 只記錄**觀測到什麼、存在哪裡**；所有「判定」（univ
 
 **parked 生命週期**：每個 tuple 至多一筆**當前** `parked`；問題解除後設回 `null`，歷史由 Git 保留。reason code：`fetch_fail`、`identity_mismatch`、`parse_fail`、`answer_missing`、`note_unparsed`、`format_drift`、`text_layer_loss`（AC-16）。compile 階段新產生之 parked 寫入 `release/coverage.json`（compile 不寫 manifest）。
 
-**PR 觸發**：僅在 revision 新增、`mod_page_rev` 之判定結果改變、`parked` 改變，或某 tuple 首次滿足 `original` 條件時開 PR；判定未變之月度重抓不開 PR（HTML 仍存入 `raw/pages/`，於下次有變更之 PR 一併提交）。
+**PR 觸發**：僅在 revision 新增、`mod_page_rev` 之判定結果改變、`parked` 改變，或某 tuple 首次滿足 `original` 條件時開 PR；判定未變之重抓不開 PR（HTML 仍存入 `raw/pages/`，於下次有變更之 PR 一併提交）。
 
 ### 4.7 文字層次與字元歸屬
 
@@ -384,8 +384,8 @@ subject_list 頁之非 200 或 redirect 仍存入 `pages`（保留證據），co
 
 ### 5.3 併發
 
-- GitHub Actions 設 `concurrency: sync`，`cancel-in-progress: false`，序列化執行。
-- sync PR 記錄其 base commit；base ≠ 當前 main → 視為衝突，關閉重跑，不自動 rebase。
+- 手動執行（§8），同一時間只跑一個 acquire；acquire 前 `main` 須為最新且工作區乾淨。
+- 排程恢復時（§8「暫緩之排程設計」）：GitHub Actions 設 `concurrency: sync`，`cancel-in-progress: false`；sync PR 記錄其 base commit，base ≠ 當前 main → 關閉重跑，不自動 rebase。
 
 ### 5.4 Release 資格（compile 時計算）
 
@@ -489,20 +489,25 @@ taiwan-pharmacist-exam-data/
 
 ---
 
-## 8. 自動化
+## 8. 執行方式（手動）
 
-| 項目 | 設定 |
+排程暫緩（D14）：每年僅兩場藥師國考，手動於下列時點執行。
+
+| 時點 | 步驟 |
 |---|---|
-| 觸發 | cron 每月 1 日 + `workflow_dispatch`；`concurrency: sync` 序列化 |
-| 行為 | acquire：(1) 重抓 year_list，發現新 `exam_code`；(2) 對 `age ≤ 180` 之考試重抓 subject_list 頁；符合 §4.6「PR 觸發」條件才 compile（`release_date` = run 當日 Asia/Taipei，寫入 PR 描述）並開 PR，**不自動 merge** |
-| 人工閘門 | 新考試或 current revs 變更 → MG-1 證據須隨 PR 提交，否則該場 `withheld:[mg1_*]` |
-| 失敗 | `sys.exit(1)`；Actions 紅燈即為通知 |
+| 考後 ≥ 90 天（發布） | `tped acquire` → `tped compile --release-date <今日>` → `tped review-init <code>` → 人工 MG-1 → `tped compile --release-date <今日>` → PR |
+| 考後 ≈ 180 天（D6 複查） | `tped acquire` → `tped compile`；MOD 判定或 revision 有變 → 依 §4.6「PR 觸發」開 PR |
+| 失敗 | 各子命令 `sys.exit(1)`，未寫入 manifest；人工排除後重跑 |
+
+**順序不可省**：review-init 讀上一次 compile 之 `intermediate/mg1/`，acquire 後未先 compile 即建範本，會帶舊 `mod_page` 而判 `mg1_stale`。
+
+**暫緩之排程設計**（恢復時沿用）：cron 每月 1 日 + `workflow_dispatch`；acquire 重抓 year_list 與 `age ≤ 180` 之 subject_list，符合 §4.6「PR 觸發」才 compile（`release_date` = run 當日 Asia/Taipei）並開 PR，不自動 merge；MG-1 證據須隨 PR 提交；Actions 紅燈即通知。
 
 ---
 
 ## 9. 里程碑
 
-核心契約（§4.6 manifest／MOD 判定／raw revision／parked、§4.7 字元歸屬、§4.8 coverage、§5.4 release 資格）於 v0.4 凍結；變更須更新 spec 版本並記入修訂紀錄。cron 與衍生格式在後。
+核心契約（§4.6 manifest／MOD 判定／raw revision／parked、§4.7 字元歸屬、§4.8 coverage、§5.4 release 資格）於 v0.4 凍結；變更須更新 spec 版本並記入修訂紀錄。衍生格式在後；排程暫緩（§8、D14）。
 
 | M | 內容 | 出場條件 |
 |---|---|---|
@@ -510,7 +515,7 @@ taiwan-pharmacist-exam-data/
 | M1 | acquire | ✅ 2026-09-25。universe 全部 Q/ANS/MOD 與 HTML 取得；每份 oracle 檔須落入三類之一：SHA256 相同／站方重新產生（字元多重集合相同）／站方較新（CreationDate 較晚，列出供人工確認）；雙方各自通過表頭身分驗證；H1 解決；manifest 通過 AC-9。實測 53／9／1 |
 | M2 | compile | AC-0 ~ AC-16 全綠（universe 全部場次），每條反例 fixture 皆 FAIL |
 | M3 | render | 每筆衍生記錄含 canonical `id`；規格指定之投影欄位（id、stem、options、accepted_answers、answer_status、score_policy、source 聲明）與 canonical 相等；不要求自衍生格式重建 canonical |
-| M4 | 探索 + GitHub Actions | 110–112 逐年跑相容性探索，產出報告與 parked 記錄（不進 `data/`）；cron 正常；CHANGELOG 建立 |
+| M4 | 探索 | 110–112 逐年跑相容性探索，產出報告與 parked 記錄（不進 `data/`）。GitHub Actions 排程暫緩（D14）；CHANGELOG ✅ 已建立 |
 
 ### 9.1 M0 結果（2026-09-25，oracle/manual 5 場 30 科）
 
@@ -533,12 +538,12 @@ taiwan-pharmacist-exam-data/
 | 風險 | 影響 | 機率 | 緩解 |
 |---|---|---|---|
 | MOD 端點不明（H1） | 無法取得更正答案、無法判定 `absent` | 中 | 未解則所有 ANS-only 科目 `unverified`，AC-8 阻擋 |
-| 更正晚於 90 天公告（H2） | 已發布初版答案錯誤 | 低 | 180 天複查 + PR |
+| 更正晚於 90 天公告（H2） | 已發布初版答案錯誤 | 低 | 180 天手動複查 + PR（§8） |
 | MOD 備註新句型（H3） | 答案語意錯誤 | 低 | AC-11 完全消耗檢查 → FAIL |
 | 站方原址替換 PDF | provenance 斷裂 | 低 | raw 不可變 + append revision（§4.6） |
-| 站方改版／端點變更 | 管線中斷 | 中 | 端點契約集中於 `discover.py`；CI 紅燈 |
+| 站方改版／端點變更 | 管線中斷 | 中 | 端點契約集中於 `discover.py`；acquire `exit 1` 不寫 manifest |
 | Session 狀態致錯置 | 資料錯置（已發生一次） | 中 | 回應 code 驗證 + AC-12 表頭與 Q 互異 |
-| 爬取被視為濫用 | 存取受限 | 低 | 1.5s 節流、辨識性 UA、月頻 |
+| 爬取被視為濫用 | 存取受限 | 低 | 1.5s 節流、辨識性 UA、每年數次手動 |
 | 跨年度格式漂移 | 舊年度解析失敗 | 高 | 110–112 僅探索（N9） |
 | 扁平化上下標歧義 | 下游誤讀數值 | 中 | 不改寫；`text_fidelity` + README 明示 |
 | 下游改寫題幹 | 違反引用聲明 | 中 | README 使用條款；`id` + `source` 可偵測 |
@@ -562,17 +567,27 @@ taiwan-pharmacist-exam-data/
 | D11 | acquire 只存證據（HTML／PDF），universe、MOD 有無、表頭身分全部由 compile 重算 | 儲存之判定結果與布林值不可重驗 |
 | D12 | `original` 僅依最新一次 subject_list 頁，且須於考後 ≥90 天抓取 | 舊的 absent 不代表更正窗口已過 |
 | D13 | 人工輸入集中於 `inputs/`，與 compile 產物分離 | clean build 不得刪除人工資料 |
+| D14 | GitHub Actions 排程暫緩，改手動於考後 90／180 天執行（§8） | 每年僅兩場；每場仍須人工 MG-1，排程只省下 acquire 一步 |
 
 ---
 
 ## 12. 下一步
 
-1. M1（acquire，首要解 H1）與 M2（compile，以 `oracle/manual/` 為夾具）平行啟動。
-2. 實作完成後以 `/codex-review` 區塊 4 對照本規格稽核（特別是 AC 反例 fixture 是否真的存在且會 FAIL）。
+M0–M2 已完成（release 2026-10-28：6 場 35 科 2,620 題）。
+
+1. 約 2027-01-15：115090 考後 180 天複查（§8）。
+2. 116 年第一次考後滿 90 天（約 2027-05）：發布流程（§8）。
+3. M3 render、M4 110–112 探索：視下游需求另案。
 
 ---
 
 ## 修訂紀錄
+
+### v0.8（2026-10-28）— 排程暫緩
+
+| 改動 | 依據 |
+|---|---|
+| §8 改為手動執行方式（發布／180 天複查兩個時點、順序不可省），原排程設計保留為「暫緩」；§5.3、§9 M4、§10、§12 同步；新增 D14 | 使用者決定：每年僅兩場國考，不建排程 |
 
 ### v0.7（2026-10-28）— 頁面 revision 新增條件
 
