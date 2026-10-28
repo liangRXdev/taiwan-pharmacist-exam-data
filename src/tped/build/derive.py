@@ -27,7 +27,10 @@ def universe(m: dict, release_date: date) -> dict[str, moexhtml.ExamBlock]:
         page = manifest.page_by_rev(m, revs[y])
         if page["http_status"] != 200:
             raise DeriveError(f"年度頁 {y} HTTP {page['http_status']}")
-        blocks = moexhtml.parse_exam_blocks(manifest.read_page(m, revs[y]).decode("utf-8"))
+        try:
+            blocks = moexhtml.year_page_blocks(manifest.read_page(m, revs[y]).decode("utf-8"), int(y))
+        except moexhtml.PageStructureError as e:
+            raise DeriveError(f"年度頁 {y}：{e}") from e
         for code, blk in blocks.items():
             if blk.pharm_rows() and int(code[:3]) >= FIRST_YEAR_ROC:
                 out[code] = blk

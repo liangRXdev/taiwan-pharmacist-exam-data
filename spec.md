@@ -272,7 +272,7 @@ manifest 只記錄**觀測到什麼、存在哪裡**；所有「判定」（univ
 - `revisions` 依 (fetched_at, rev) 升冪。
 - `discovery` 引用之每個 rev 皆存在於 `pages`。
 
-**Universe（compile 重算）**：解析 `discovery.year_list_revs` 所指頁面之 `<select>` option，取民國 113 年起、其 subject_list 頁含類科「藥師」之 `exam_code`；universe ＝ 該集合 × {P1..P6}。`tuples` 必須與 universe **完全相等**（AC-0）。任一 year_list 頁缺失或無法解析 → 整次 compile FAIL，不得以部分 universe 繼續。
+**Universe（compile 重算）**：解析 `discovery.year_list_revs` 所指頁面之 `<select>` option，取民國 113 年起、其 subject_list 頁含類科「藥師」之 `exam_code`；universe ＝ 該集合 × {P1..P6}。`tuples` 必須與 universe **完全相等**（AC-0）。任一 year_list 頁缺失、非 200 或無法解析 → 整次 compile FAIL，不得以部分 universe 繼續。**year_list 頁交叉驗證**（acquire 與 compile 皆執行）：`ddlExamCode` 下拉選單必須存在；其 option `exam_code` 集合必須 == 表格區塊（`td.level1`）之 `exam_code` 集合，且全部屬於請求之年度（防表格改版致 universe 靜默縮小、防 session 狀態回傳他年度頁）。acquire 於寫入 raw 前驗證，不通過即中止、不寫 manifest。
 
 **MOD 判定（compile 重算，依 H1 定案之規則）**：對 `mod_page_rev` 所指頁面：
 - `present`：頁面含該科 MOD 連結 → 必須有 `current.MOD`，否則 FAIL。
@@ -380,7 +380,7 @@ manifest 只記錄**觀測到什麼、存在哪裡**；所有「判定」（univ
 | retryable | 逾時、429、5xx、連線錯誤 | 重試 3 次（指數退避）；仍失敗 → 本次 run 失敗，**不修改 manifest**，`sys.exit(1)` |
 | unusable | 非 PDF（HTML 偽裝）、截斷、表頭身分不符、redirect 至其他 code | 科目 `parked`（`fetch_fail`／`identity_mismatch`），`sys.exit(1)` |
 
-subject_list 頁之非 200 或 redirect 仍存入 `pages`（保留證據），compile 會判為 `inconclusive`。
+subject_list 頁之非 200 或 redirect 仍存入 `pages`（保留證據），compile 會判為 `inconclusive`；**不中止整次 acquire**：該場只更新 `discovery.subject_list_revs` 與該場各 tuple 之 `mod_page_rev`，不下載 PDF，記入 problems（run 結束 exit 1）。year_list 頁非 200 → 整次中止、不寫 manifest。acquire 期 `parked`（`stage: acquire`）之 tuple 一律重抓，不受 MOD 複查窗口（`age ≤ 180`）限制。`requests` 任何請求例外歸 retryable；PDF 無法開啟（pdfplumber 例外）歸 unusable（`fetch_fail`）。
 
 ### 5.3 併發
 
@@ -589,6 +589,8 @@ M0–M2 已完成（release 2026-10-28：6 場 35 科 2,620 題）。
 
 | 改動 | 依據 |
 |---|---|
+| §4.6 Universe：year_list 頁之 `ddlExamCode` 選單與表格區塊 code 集合必須相等且屬請求年度；acquire 年度頁非 200 中止 | 原僅解析表格，選單（`parse_exam_options`）未被呼叫；年度頁 404／改版會使 universe 靜默縮小 |
+| §5.2：科目頁非 200 不中止 acquire（只更新 `subject_list_revs`／`mod_page_rev`、記 problems）；acquire parked 一律重抓；`RequestException` 歸 retryable；PDF 開檔例外歸 unusable | 原單場科目頁 302 即中止整次 acquire；acquire parked 於考後 180 天後永不重抓 |
 | §5.4 E5／§6.2 MG-1：逐題 `l2_digest`、`exam_date`／`exam_date_source_url` 與 inputs 不符 → `mg1_stale`；items id 重複 → `mg1_stale`；審查者僅空白 → `mg1_pending` | 審查結果僅綁 PDF revs，parser 變更致 L2 改變仍沿用舊判定；inputs 日期更正後舊審查仍放行 |
 | §4.5.1 選項：`K.` + 空白 + 小寫不是標記；續行以 `[A-D].` 開頭 → `parse_fail` | 合成重現：選項 A「以 B. subtilis 為指標」被切成 A='以'、B='subtilis 為指標…'，unattributed 0、AC-2/AC-7 全過 |
 
