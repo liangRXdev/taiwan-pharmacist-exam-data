@@ -97,13 +97,28 @@ def test_ac8_ninety_day_window(m):
     assert not derive.original_allowed(jd, None)
 
 
-def test_ac8_real_status(records):
-    """original 必須附 mod_page_rev；115090（科目頁抓取時考後僅 68 天）之 ANS-only 科目不得為 original。"""
+PAGE_115090_DAY68 = "sha256:069363346f20a06f9b485759550d744995b10b42f375a08cfaf7d88a67f10b76"  # 2026-09-25 抓取，考後 68 天
+EXAM_115090 = date(2026, 7, 19)
+
+
+def test_ac8_real_status(m, records):
+    """original 必須附 mod_page_rev；ANS-only 科目為 original ⇔ 其 mod_page 抓取於考後 ≥ 90 天（不依賴 manifest 目前推進到哪）。"""
     assert {r["answer_status"] for r in records} <= {"corrected", "unverified", "original"}
     assert not any(r["answer_status"] == "original" and r["source"]["mod_page_rev"] is None for r in records)
     ans_only_115090 = [r for r in records if r["exam_code"] == "115090" and r["source"]["mod_rev"] is None]
-    assert ans_only_115090 and all(r["answer_status"] == "unverified" for r in ans_only_115090)
+    assert ans_only_115090
+    for r in ans_only_115090:
+        allowed = derive.original_allowed(derive.mod_judgement(m, _t(m, "115090", r["subject"])), EXAM_115090)
+        assert (r["answer_status"] == "original") == allowed, r["id"]
     assert any(r["answer_status"] == "original" for r in records)
+
+
+def test_ac8_day68_page_not_original(m):
+    t = _t(m, "115090", "P4")
+    t["mod_page_rev"] = PAGE_115090_DAY68
+    jd = derive.mod_judgement(m, t)
+    assert jd.result == "absent"
+    assert not derive.original_allowed(jd, EXAM_115090), "absent 觀測在考後第 68 天"
 
 
 def test_ac8_too_recent(compiled):
