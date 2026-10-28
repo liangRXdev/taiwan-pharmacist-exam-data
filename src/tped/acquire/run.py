@@ -39,7 +39,7 @@ class Acquirer:
     def _store_page(self, role: str, url: str, prev_rev: str | None, exam_code: str | None) -> tuple[str, bytes]:
         r = http.get(url)
         html = r.content
-        digest = manifest.sha256_hex(moexhtml.content_digest_source(html.decode("utf-8", "replace")).encode("utf-8"))
+        digest = "sha256:" + manifest.sha256_hex(moexhtml.content_digest_source(html.decode("utf-8", "replace")).encode("utf-8"))
         if prev_rev is not None:
             prev = manifest.page_by_rev(self.m, prev_rev)
             if prev["content_digest"] == digest and prev["http_status"] == r.status and not self._crosses_window(prev, exam_code):
@@ -51,7 +51,7 @@ class Acquirer:
             self.m["pages"].append({
                 "rev": rev, "role": role, "url": url, "fetched_at": _now(),
                 "http_status": r.status, "final_url": r.final_url,
-                "content_digest": "sha256:" + digest,
+                "content_digest": digest,
                 "raw_path": path.relative_to(ROOT).as_posix(),
             })
             self.changes.append(f"page {role} {url}")

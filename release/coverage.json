@@ -1,5 +1,5 @@
 {
-  "release_date": "2026-09-27",
+  "release_date": "2026-10-28",
   "tuples": [
     {
       "exam_code": "113020",
@@ -300,7 +300,7 @@
         "Q": "sha256:ebf8c6ef4531552372c3b77bd88ab889d74a770a83afdfc7ffb3bc9ddad67a5b",
         "ANS": "sha256:f5d27f0cfa995cf4eac70945b33e5e088b7901284d266730f46802c244a9e012",
         "MOD": "sha256:55c29b5c6aa2426ac238189167c1b66cefd0423aebfd278b684a6741553a0f6a",
-        "mod_page": "sha256:66c6b95e80c36a0962e5a2f7094c81cc7723441dd5c99621fcf8982a0db508d2"
+        "mod_page": "sha256:f860dff8c80bcd7223ecefad2c38543f7e29f18da125c40a7ed0cc9ebd6e168d"
       }
     },
     {
@@ -312,7 +312,7 @@
         "Q": "sha256:54898fc64b078f4d589debd265b909f44087de1b201c9a03d4a2b775eec45e26",
         "ANS": "sha256:7bec9e5ff3873e39ac0fae6cb45731959ef5200c4a458ce17d5e78a6ad6bbeec",
         "MOD": "sha256:8df80319d7a6e2d58e92518adf7f08b26e8953aa29aa49a48ee9b4e1da6b63c4",
-        "mod_page": "sha256:66c6b95e80c36a0962e5a2f7094c81cc7723441dd5c99621fcf8982a0db508d2"
+        "mod_page": "sha256:f860dff8c80bcd7223ecefad2c38543f7e29f18da125c40a7ed0cc9ebd6e168d"
       }
     },
     {
@@ -324,7 +324,7 @@
         "Q": "sha256:3f841455e082acd4bbb406d6d0af28c7bfdbbae9362b5720e819bd2bc34f5d56",
         "ANS": "sha256:525b8de990b37abe815285893b01422081b4911c5aa86d0aec690cd6c3ce0064",
         "MOD": "sha256:6798065cbbdd5e9ec20f0fcbb545d78f229c3045932008f127f41982a9b2bf83",
-        "mod_page": "sha256:66c6b95e80c36a0962e5a2f7094c81cc7723441dd5c99621fcf8982a0db508d2"
+        "mod_page": "sha256:f860dff8c80bcd7223ecefad2c38543f7e29f18da125c40a7ed0cc9ebd6e168d"
       }
     },
     {
@@ -336,7 +336,7 @@
         "Q": "sha256:685ad59bddcdafe7b1cdf0757d150950d0a61a950b1af7e0c2a86705eb70f71e",
         "ANS": "sha256:3117ad7d2a91acebbeedc73923bdbcebdae1d8e80bf90d582a3ff917efefeb55",
         "MOD": null,
-        "mod_page": "sha256:66c6b95e80c36a0962e5a2f7094c81cc7723441dd5c99621fcf8982a0db508d2"
+        "mod_page": "sha256:f860dff8c80bcd7223ecefad2c38543f7e29f18da125c40a7ed0cc9ebd6e168d"
       }
     },
     {
@@ -348,7 +348,7 @@
         "Q": "sha256:e20b2c2e6b5b3a34f859ddd73c5a4e4daf30734b6e79c4bf36fda050e07ecf0f",
         "ANS": "sha256:0338e4a2c578245bc2b47aa436e329365bda60d5b633f6396a6608db978242e2",
         "MOD": null,
-        "mod_page": "sha256:66c6b95e80c36a0962e5a2f7094c81cc7723441dd5c99621fcf8982a0db508d2"
+        "mod_page": "sha256:f860dff8c80bcd7223ecefad2c38543f7e29f18da125c40a7ed0cc9ebd6e168d"
       }
     },
     {
@@ -360,99 +360,79 @@
         "Q": "sha256:c89ff72e74c726a62930bdb7428418788504dda022c2bda16fdbe9163e067ae6",
         "ANS": "sha256:fc7245837a3fd2a337d6ac49f872884f76bd3f7817197b66b073258f0345574b",
         "MOD": "sha256:c072e5676dbd70741f3f302edd6ca3654816b669625d92c63d66817ae0964b65",
-        "mod_page": "sha256:66c6b95e80c36a0962e5a2f7094c81cc7723441dd5c99621fcf8982a0db508d2"
+        "mod_page": "sha256:f860dff8c80bcd7223ecefad2c38543f7e29f18da125c40a7ed0cc9ebd6e168d"
       }
     },
     {
       "exam_code": "115090",
       "subject": "P1",
-      "status": "withheld",
-      "reasons": [
-        "mg1_missing",
-        "too_recent"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:fe1c48565099d89d105a01c0fe6a7b9c394e4c39b52e0e7d3eb186d2e48ed9bb",
         "ANS": "sha256:eda0405d4a8397b4cee62599f4fe3d7213b04babbb5481ddfa82600faab7a359",
         "MOD": "sha256:778255709a4c9de509beab1dc3f957d8158d2f87105972ff682e07e6eab940e7",
-        "mod_page": "sha256:069363346f20a06f9b485759550d744995b10b42f375a08cfaf7d88a67f10b76"
+        "mod_page": "sha256:917ef44ca100258a3c4f85639e1fa3c7fd7cc81adcf6d1835941be7ada74d27a"
       }
     },
     {
       "exam_code": "115090",
       "subject": "P2",
-      "status": "withheld",
-      "reasons": [
-        "mg1_missing",
-        "too_recent"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:b5df16a089ac771a5052810955e400f172e3b390e49a9d6873c94f265add3274",
         "ANS": "sha256:f017dea2c2e920668b41ce0250457937d1183604b3f42dba2465be324defb541",
         "MOD": "sha256:b985b287c45ef39fac6cb27646127a6cd8d47ed42361d64583f6c643feed58fc",
-        "mod_page": "sha256:069363346f20a06f9b485759550d744995b10b42f375a08cfaf7d88a67f10b76"
+        "mod_page": "sha256:917ef44ca100258a3c4f85639e1fa3c7fd7cc81adcf6d1835941be7ada74d27a"
       }
     },
     {
       "exam_code": "115090",
       "subject": "P3",
-      "status": "withheld",
-      "reasons": [
-        "mg1_missing",
-        "too_recent"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:d0dc24ae9d3ea997a0b57339451504a35b70119d790350045fc18850b98aebdd",
         "ANS": "sha256:818c55b605828ff3a56ac89835043dd9d02f7a5cba684f6b47b851f6ecd8d979",
         "MOD": "sha256:4d4dde139eac4e6499374b5b6ccbe45c3c3772b120d5d26bd539c03c3487f469",
-        "mod_page": "sha256:069363346f20a06f9b485759550d744995b10b42f375a08cfaf7d88a67f10b76"
+        "mod_page": "sha256:917ef44ca100258a3c4f85639e1fa3c7fd7cc81adcf6d1835941be7ada74d27a"
       }
     },
     {
       "exam_code": "115090",
       "subject": "P4",
-      "status": "withheld",
-      "reasons": [
-        "mg1_missing",
-        "too_recent",
-        "unverified"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:06855fb455590d57e320a4ab83b4c74796e73776c87c1cd65054017f21dd4d22",
         "ANS": "sha256:ef26e4ab098ed1c7e71c9749a9fc16d7fd6368e2f6b1d480741ee2297a378130",
         "MOD": null,
-        "mod_page": "sha256:069363346f20a06f9b485759550d744995b10b42f375a08cfaf7d88a67f10b76"
+        "mod_page": "sha256:917ef44ca100258a3c4f85639e1fa3c7fd7cc81adcf6d1835941be7ada74d27a"
       }
     },
     {
       "exam_code": "115090",
       "subject": "P5",
-      "status": "withheld",
-      "reasons": [
-        "mg1_missing",
-        "too_recent"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:acc9f5f67079f807e651fc12e34318d2b7d8db39827764a0173e473eb6161429",
         "ANS": "sha256:8edbfb6a73e8a82cb382c31ccd9726ce8ce87eef49dbc2d9c1e2393f85cdcd84",
         "MOD": "sha256:fb09b8e0fcc5dda5103ea30c838847a49adf2184748910ca2c400e20be5aa736",
-        "mod_page": "sha256:069363346f20a06f9b485759550d744995b10b42f375a08cfaf7d88a67f10b76"
+        "mod_page": "sha256:917ef44ca100258a3c4f85639e1fa3c7fd7cc81adcf6d1835941be7ada74d27a"
       }
     },
     {
       "exam_code": "115090",
       "subject": "P6",
-      "status": "withheld",
-      "reasons": [
-        "mg1_missing",
-        "too_recent",
-        "unverified"
-      ],
+      "status": "released",
+      "reasons": [],
       "revs": {
         "Q": "sha256:46c9890f3ae45a62621bbaca5f1faf6694072c68c321b314c3a4ae861002006f",
         "ANS": "sha256:95ac7ab5a53d10b374377ca238b45790ebbc4fcc682eafc838fdde027c454122",
         "MOD": null,
-        "mod_page": "sha256:069363346f20a06f9b485759550d744995b10b42f375a08cfaf7d88a67f10b76"
+        "mod_page": "sha256:917ef44ca100258a3c4f85639e1fa3c7fd7cc81adcf6d1835941be7ada74d27a"
       }
     }
   ]

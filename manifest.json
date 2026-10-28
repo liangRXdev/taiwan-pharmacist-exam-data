@@ -82,6 +82,16 @@
       "raw_path": "raw/pages/6f0a2cec.html.gz"
     },
     {
+      "rev": "sha256:917ef44ca100258a3c4f85639e1fa3c7fd7cc81adcf6d1835941be7ada74d27a",
+      "role": "subject_list",
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?y=2026&e=115090",
+      "fetched_at": "2026-10-28T08:37:22+08:00",
+      "http_status": 200,
+      "final_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?y=2026&e=115090",
+      "content_digest": "sha256:f0d92cbd00fc7104186864a090224c24408bc4feced3981fc85d98b7a2560913",
+      "raw_path": "raw/pages/917ef44c.html.gz"
+    },
+    {
       "rev": "sha256:c9825db3bd7ac44af41319664f04653a201ddbcbdf6f6f743551b3a7860bba81",
       "role": "subject_list",
       "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?y=2024&e=113020",
@@ -90,21 +100,41 @@
       "final_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?y=2024&e=113020",
       "content_digest": "sha256:f9370d32e4c26cfd61d0bea75fdf93a1e6d8ba0b274e7910299b4a8593601431",
       "raw_path": "raw/pages/c9825db3.html.gz"
+    },
+    {
+      "rev": "sha256:cc52dd2878d91998316bf411513c5e3da6bf8283f98a04506c843859d7e7ecdb",
+      "role": "year_list",
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?y=2026",
+      "fetched_at": "2026-10-28T08:37:09+08:00",
+      "http_status": 200,
+      "final_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?y=2026",
+      "content_digest": "sha256:16b9efa1fc5bdfc950640f4aecc13005f61a57c93586d481e0866c07295750c5",
+      "raw_path": "raw/pages/cc52dd28.html.gz"
+    },
+    {
+      "rev": "sha256:f860dff8c80bcd7223ecefad2c38543f7e29f18da125c40a7ed0cc9ebd6e168d",
+      "role": "subject_list",
+      "url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?y=2026&e=115020",
+      "fetched_at": "2026-10-28T08:37:20+08:00",
+      "http_status": 200,
+      "final_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?y=2026&e=115020",
+      "content_digest": "sha256:76fdd4e4bd1f462aa6d97c5a201e145c39f08ed03c875638c3848222cb004c47",
+      "raw_path": "raw/pages/f860dff8.html.gz"
     }
   ],
   "discovery": {
     "year_list_revs": {
       "2024": "sha256:410982fd65a480a0e03cd8452c7b31ab4f8d6f0e9b6243c5a30a8e18f7d0f145",
       "2025": "sha256:68da82dd85af673602af9d7efeab4e9c2e061ce47177ee268f0bbdae2e0fe6c5",
-      "2026": "sha256:3c8b5aabdfaba950453eee3ee998dedc1856ffc495636581360a87345e7fed17"
+      "2026": "sha256:cc52dd2878d91998316bf411513c5e3da6bf8283f98a04506c843859d7e7ecdb"
     },
     "subject_list_revs": {
       "113020": "sha256:c9825db3bd7ac44af41319664f04653a201ddbcbdf6f6f743551b3a7860bba81",
       "113090": "sha256:6f0a2cec3e1dbcd585fab892703f6051a4d83ecb64c000825d10f5a866c1077d",
       "114020": "sha256:49fd367648d32288221f8d867be8fb3e7d419dce1c250e2a8df89654ec8d2dc5",
       "114090": "sha256:29ba20cd945e593b5b6023faa396d1fe060f50a4d3229fa694ba77fa8ad4cadc",
-      "115020": "sha256:66c6b95e80c36a0962e5a2f7094c81cc7723441dd5c99621fcf8982a0db508d2",
-      "115090": "sha256:069363346f20a06f9b485759550d744995b10b42f375a08cfaf7d88a67f10b76"
+      "115020": "sha256:f860dff8c80bcd7223ecefad2c38543f7e29f18da125c40a7ed0cc9ebd6e168d",
+      "115090": "sha256:917ef44ca100258a3c4f85639e1fa3c7fd7cc81adcf6d1835941be7ada74d27a"
     }
   },
   "tuples": [
@@ -942,7 +972,7 @@
         "ANS": "sha256:f5d27f0cfa995cf4eac70945b33e5e088b7901284d266730f46802c244a9e012",
         "MOD": "sha256:55c29b5c6aa2426ac238189167c1b66cefd0423aebfd278b684a6741553a0f6a"
       },
-      "mod_page_rev": "sha256:66c6b95e80c36a0962e5a2f7094c81cc7723441dd5c99621fcf8982a0db508d2",
+      "mod_page_rev": "sha256:f860dff8c80bcd7223ecefad2c38543f7e29f18da125c40a7ed0cc9ebd6e168d",
       "parked": null
     },
     {
@@ -978,7 +1008,7 @@
         "ANS": "sha256:7bec9e5ff3873e39ac0fae6cb45731959ef5200c4a458ce17d5e78a6ad6bbeec",
         "MOD": "sha256:8df80319d7a6e2d58e92518adf7f08b26e8953aa29aa49a48ee9b4e1da6b63c4"
       },
-      "mod_page_rev": "sha256:66c6b95e80c36a0962e5a2f7094c81cc7723441dd5c99621fcf8982a0db508d2",
+      "mod_page_rev": "sha256:f860dff8c80bcd7223ecefad2c38543f7e29f18da125c40a7ed0cc9ebd6e168d",
       "parked": null
     },
     {
@@ -1014,7 +1044,7 @@
         "ANS": "sha256:525b8de990b37abe815285893b01422081b4911c5aa86d0aec690cd6c3ce0064",
         "MOD": "sha256:6798065cbbdd5e9ec20f0fcbb545d78f229c3045932008f127f41982a9b2bf83"
       },
-      "mod_page_rev": "sha256:66c6b95e80c36a0962e5a2f7094c81cc7723441dd5c99621fcf8982a0db508d2",
+      "mod_page_rev": "sha256:f860dff8c80bcd7223ecefad2c38543f7e29f18da125c40a7ed0cc9ebd6e168d",
       "parked": null
     },
     {
@@ -1043,7 +1073,7 @@
         "ANS": "sha256:3117ad7d2a91acebbeedc73923bdbcebdae1d8e80bf90d582a3ff917efefeb55",
         "MOD": null
       },
-      "mod_page_rev": "sha256:66c6b95e80c36a0962e5a2f7094c81cc7723441dd5c99621fcf8982a0db508d2",
+      "mod_page_rev": "sha256:f860dff8c80bcd7223ecefad2c38543f7e29f18da125c40a7ed0cc9ebd6e168d",
       "parked": null
     },
     {
@@ -1072,7 +1102,7 @@
         "ANS": "sha256:0338e4a2c578245bc2b47aa436e329365bda60d5b633f6396a6608db978242e2",
         "MOD": null
       },
-      "mod_page_rev": "sha256:66c6b95e80c36a0962e5a2f7094c81cc7723441dd5c99621fcf8982a0db508d2",
+      "mod_page_rev": "sha256:f860dff8c80bcd7223ecefad2c38543f7e29f18da125c40a7ed0cc9ebd6e168d",
       "parked": null
     },
     {
@@ -1108,7 +1138,7 @@
         "ANS": "sha256:fc7245837a3fd2a337d6ac49f872884f76bd3f7817197b66b073258f0345574b",
         "MOD": "sha256:c072e5676dbd70741f3f302edd6ca3654816b669625d92c63d66817ae0964b65"
       },
-      "mod_page_rev": "sha256:66c6b95e80c36a0962e5a2f7094c81cc7723441dd5c99621fcf8982a0db508d2",
+      "mod_page_rev": "sha256:f860dff8c80bcd7223ecefad2c38543f7e29f18da125c40a7ed0cc9ebd6e168d",
       "parked": null
     },
     {
@@ -1144,7 +1174,7 @@
         "ANS": "sha256:eda0405d4a8397b4cee62599f4fe3d7213b04babbb5481ddfa82600faab7a359",
         "MOD": "sha256:778255709a4c9de509beab1dc3f957d8158d2f87105972ff682e07e6eab940e7"
       },
-      "mod_page_rev": "sha256:069363346f20a06f9b485759550d744995b10b42f375a08cfaf7d88a67f10b76",
+      "mod_page_rev": "sha256:917ef44ca100258a3c4f85639e1fa3c7fd7cc81adcf6d1835941be7ada74d27a",
       "parked": null
     },
     {
@@ -1180,7 +1210,7 @@
         "ANS": "sha256:f017dea2c2e920668b41ce0250457937d1183604b3f42dba2465be324defb541",
         "MOD": "sha256:b985b287c45ef39fac6cb27646127a6cd8d47ed42361d64583f6c643feed58fc"
       },
-      "mod_page_rev": "sha256:069363346f20a06f9b485759550d744995b10b42f375a08cfaf7d88a67f10b76",
+      "mod_page_rev": "sha256:917ef44ca100258a3c4f85639e1fa3c7fd7cc81adcf6d1835941be7ada74d27a",
       "parked": null
     },
     {
@@ -1216,7 +1246,7 @@
         "ANS": "sha256:818c55b605828ff3a56ac89835043dd9d02f7a5cba684f6b47b851f6ecd8d979",
         "MOD": "sha256:4d4dde139eac4e6499374b5b6ccbe45c3c3772b120d5d26bd539c03c3487f469"
       },
-      "mod_page_rev": "sha256:069363346f20a06f9b485759550d744995b10b42f375a08cfaf7d88a67f10b76",
+      "mod_page_rev": "sha256:917ef44ca100258a3c4f85639e1fa3c7fd7cc81adcf6d1835941be7ada74d27a",
       "parked": null
     },
     {
@@ -1245,7 +1275,7 @@
         "ANS": "sha256:ef26e4ab098ed1c7e71c9749a9fc16d7fd6368e2f6b1d480741ee2297a378130",
         "MOD": null
       },
-      "mod_page_rev": "sha256:069363346f20a06f9b485759550d744995b10b42f375a08cfaf7d88a67f10b76",
+      "mod_page_rev": "sha256:917ef44ca100258a3c4f85639e1fa3c7fd7cc81adcf6d1835941be7ada74d27a",
       "parked": null
     },
     {
@@ -1281,7 +1311,7 @@
         "ANS": "sha256:8edbfb6a73e8a82cb382c31ccd9726ce8ce87eef49dbc2d9c1e2393f85cdcd84",
         "MOD": "sha256:fb09b8e0fcc5dda5103ea30c838847a49adf2184748910ca2c400e20be5aa736"
       },
-      "mod_page_rev": "sha256:069363346f20a06f9b485759550d744995b10b42f375a08cfaf7d88a67f10b76",
+      "mod_page_rev": "sha256:917ef44ca100258a3c4f85639e1fa3c7fd7cc81adcf6d1835941be7ada74d27a",
       "parked": null
     },
     {
@@ -1310,7 +1340,7 @@
         "ANS": "sha256:95ac7ab5a53d10b374377ca238b45790ebbc4fcc682eafc838fdde027c454122",
         "MOD": null
       },
-      "mod_page_rev": "sha256:069363346f20a06f9b485759550d744995b10b42f375a08cfaf7d88a67f10b76",
+      "mod_page_rev": "sha256:917ef44ca100258a3c4f85639e1fa3c7fd7cc81adcf6d1835941be7ada74d27a",
       "parked": null
     }
   ]
