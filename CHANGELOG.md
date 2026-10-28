@@ -3,6 +3,15 @@
 ## [Unreleased]
 
 ### Added
+- release 2026-10-28：新增 115 年第二次（115090）六科 450 題（corrected 320／original 130），MG-1 20 題人工抽樣通過；合計 6 場 35 科 2,620 題
+
+### Fixed
+- acquire 科目頁去重比對 `content_digest` 前綴不一致，同內容重抓（僅 VIEWSTATE 不同）仍新增 revision，致全部 MG-1 審查判 `mg1_stale`
+
+### Changed
+- 115090、115020 之 MG-1 審查紀錄 `revs.mod_page` 更新為 2026-10-28 科目頁；Q/ANS/MOD、抽樣集合與標籤皆不變，人工判定沿用（115020 頁面變動僅為年度下拉選單新增非藥師考試）
+
+### Added
 - M1 acquire：6 場 36 科 Q/ANS/MOD 與頁面證據（raw/、manifest.json）；H1 解決（`t=M`）
 - M2 compile：canonical 2,620 題（data/）、coverage 與 release（release/）、203 張整題裁切圖
 - AC-0 ~ AC-16 測試與反例 fixture；AC-16 文字層交叉驗證（pdfium）
