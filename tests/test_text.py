@@ -2,6 +2,7 @@
 
 import copy
 import json
+import re
 from functools import lru_cache
 
 import pytest
@@ -138,7 +139,13 @@ def test_ac16_detects_dropped_glyphs():
     doc, _ = _parsed("113020", "P1")
     l1 = {p.index: [c.text for c in p.l1_chars] for p in doc.pages}
     errs = crosscheck.page_mismatches(_q_path("113020", "P1"), l1)
-    assert errs and "U+F00D" in errs[0]
+    # pdfium 對此符號字型之碼位依平台而異（Windows U+F00D–F012、Linux U+835B–8360），只驗頁碼與連續 6 碼之次數
+    assert len(errs) == 1
+    m = re.fullmatch(r"第 4 頁：pdfium 獨有 \[(.+)\]；pdfminer 獨有 \[\]", errs[0])
+    assert m, errs[0]
+    found = [(int(cp, 16), int(n)) for cp, n in re.findall(r"U\+([0-9A-F]+)×(\d+)", m.group(1))]
+    assert [n for _, n in found] == [3, 4, 3, 3, 3, 2]
+    assert [cp - found[0][0] for cp, _ in found] == list(range(6))
 
 
 def test_ac16_clean_and_injected():

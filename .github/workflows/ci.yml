@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  # AC-5 兩 job 共用之 release_date；runner 映像一律鎖 ubuntu-24.04（spec G4 不承諾跨作業系統）
+  RELEASE_DATE: "2026-10-28"
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked
+      # AC-5 由下方兩個獨立 job 驗證，此處略過同程序雙 compile 之 slow 測試
+      - run: uv run pytest -q -m "not slow"
+
+  ac5-compile:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        run: [a, b]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked
+      - name: compile 前 snapshot 雜湊
+        run: |
+          find raw inputs manifest.json -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/snapshot-before.txt
+      - run: uv run tped compile --release-date "$RELEASE_DATE"
+      - name: snapshot 不得被 compile 改動
+        run: |
+          find raw inputs manifest.json -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/snapshot-after.txt
+          diff /tmp/snapshot-before.txt /tmp/snapshot-after.txt
+      - name: compile 產物雜湊
+        run: |
+          find data release intermediate -type f -print0 | sort -z | xargs -0 sha256sum > outputs-${{ matrix.run }}.txt
+          grep -q ' data/figures/' outputs-${{ matrix.run }}.txt
+          wc -l outputs-${{ matrix.run }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: outputs-${{ matrix.run }}
+          path: outputs-${{ matrix.run }}.txt
+
+  ac5-compare:
+    needs: ac5-compile
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: outputs-*
+          merge-multiple: true
+      - run: diff outputs-a.txt outputs-b.txt
