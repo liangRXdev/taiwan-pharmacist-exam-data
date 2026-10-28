@@ -3,6 +3,12 @@
 ## [Unreleased]
 
 ### Added
+- `tped review-backfill-digest EXAM_CODE | --all`：既有 MG-1 審查檔一次性回填 `l2_digest`（只寫此欄位；revs、樣本、日期來源、全部 pass 之前置檢查不符即拒絕）（spec v0.11）
+
+### Changed
+- MG-1：任一題缺 `l2_digest` → `mg1_stale`（移除 v0.10 legacy 分支）；`review/` 6 場 120 題已回填，人工判定不變
+
+### Added
 - release 2026-10-28：新增 115 年第二次（115090）六科 450 題（corrected 320／original 130），MG-1 20 題人工抽樣通過；合計 6 場 35 科 2,620 題
 
 ### Fixed

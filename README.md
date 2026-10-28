@@ -31,6 +31,7 @@ uv run tped acquire                              # 線上擷取（每請求間�
 uv run tped compile --release-date YYYY-MM-DD    # 離線編譯（決定性）
 uv run tped review-init EXAM_CODE                # 產生 MG-1 人工抽樣範本
 uv run tped review-serve                         # 本機審查頁 http://127.0.0.1:8765/
+uv run tped review-backfill-digest EXAM_CODE|--all  # v0.10 以前之審查檔回填 l2_digest（一次性）
 uv run pytest                                    # AC-0 ~ AC-16
 ```
 

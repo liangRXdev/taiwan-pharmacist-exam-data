@@ -35,6 +35,8 @@ def _exit(monkeypatch, *argv):
     (["acquire", "extra"], 2),
     (["oracle-check", "x"], 2),
     (["review-init", "--force", "115090"], 2),
+    (["review-backfill-digest", "--force"], 2),
+    (["review-backfill-digest", "--all", "115090"], 2),
     ([], 2),
     (["nope"], 2),
 ])
