@@ -397,7 +397,7 @@ subject_list 頁之非 200 或 redirect 仍存入 `pages`（保留證據），co
 | E2 | tuple 全部自動 AC 通過 | `parked:[parse_fail…]` |
 | E3 | `answer_status ∈ {corrected, original}` | `withheld:[unverified]` |
 | E4 | `inputs/exams.json` 有該場且 `age ≥ 90` | `withheld:[exam_date_missing]` 或 `[too_recent]` |
-| E5 | `review/{exam_code}.json` 存在、其 revs == 本次 compile 實際使用之 current revs、全部 pass | `withheld:[mg1_missing]`／`[mg1_stale]`（revs 或樣本集合不符）／`[mg1_failed]`（任一題 fail）／`[mg1_pending]`（無 fail 但有題未判定、缺審查者或缺日期摘錄） |
+| E5 | `review/{exam_code}.json` 存在、其 revs == 本次 compile 實際使用之 current revs、全部 pass | `withheld:[mg1_missing]`／`[mg1_stale]`（revs、樣本集合（含重複 id）、逐題 `l2_digest`、或 `exam_date`／`exam_date_source_url` 與 `inputs/exams.json` 任一不符）／`[mg1_failed]`（任一題 fail）／`[mg1_pending]`（無 fail 但有題未判定、審查者或日期摘錄為空或僅空白） |
 
 不符者整科列入 `coverage.json`，不得靜默缺漏。
 
@@ -441,7 +441,7 @@ subject_list 頁之非 200 或 redirect 仍存入 `pages`（保留證據），co
 
 | ID | 內容 | CI 驗證方式 |
 |---|---|---|
-| MG-1 | 每場一份 `review/{exam_code}.json`：（a）核對 `inputs/exams.json` 之日期與來源頁一致，摘錄 `exam_date_source_quote`；（b）以下演算法選出 20 題，逐題比對 PDF 視覺原文與 L2（預期差異僅限 T） | 證據檔存在；revs == 本次 compile 使用之 current revs；題目 ID 集合 == 以演算法重算之集合；每題有 pass/fail 與審查者 |
+| MG-1 | 每場一份 `review/{exam_code}.json`：（a）核對 `inputs/exams.json` 之日期與來源頁一致，摘錄 `exam_date_source_quote`；（b）以下演算法選出 20 題，逐題比對 PDF 視覺原文與 L2（預期差異僅限 T） | 證據檔存在；revs == 本次 compile 使用之 current revs；題目 ID 集合 == 以演算法重算之集合；每題 `l2_digest` == 重算值；`exam_date`、`exam_date_source_url` == `inputs/exams.json`；每題有 pass/fail 與審查者 |
 
 **MG-1 抽樣演算法（決定性）**：
 
@@ -459,6 +459,8 @@ subject_list 頁之非 200 或 redirect 仍存入 `pages`（保留證據），co
 4. 已選 > 20：依標籤順序保留至 20 題（每標籤至少一題優先）；< 20：自剩餘候選依 `sha256(seed + id)` 升冪補足。
 5. `seed` = 該場六科 `current.Q` rev 依 subject 排序串接。
 6. 某標籤於該場無成員 → 證據檔記錄「不適用」；AC-15 確保 v1 範圍內偵測器不會整體失效。
+
+**L2 綁定**：`review-init` 於每題寫入 `l2_digest` = `sha256:` + SHA256（canonical JSON `{"accepted_answers","options","stem"}`，`sort_keys`、`separators=(",",":")`、UTF-8）。revs 不變但 parser／T 變更使 L2 改變時，舊人工判定不得沿用。**遷移（待決）**：v0.9 以前建立、全部題目皆缺 `l2_digest` 之審查檔暫不比對；部分缺 → `mg1_stale`。
 
 ---
 
@@ -587,6 +589,7 @@ M0–M2 已完成（release 2026-10-28：6 場 35 科 2,620 題）。
 
 | 改動 | 依據 |
 |---|---|
+| §5.4 E5／§6.2 MG-1：逐題 `l2_digest`、`exam_date`／`exam_date_source_url` 與 inputs 不符 → `mg1_stale`；items id 重複 → `mg1_stale`；審查者僅空白 → `mg1_pending` | 審查結果僅綁 PDF revs，parser 變更致 L2 改變仍沿用舊判定；inputs 日期更正後舊審查仍放行 |
 | §4.5.1 選項：`K.` + 空白 + 小寫不是標記；續行以 `[A-D].` 開頭 → `parse_fail` | 合成重現：選項 A「以 B. subtilis 為指標」被切成 A='以'、B='subtilis 為指標…'，unattributed 0、AC-2/AC-7 全過 |
 
 ### v0.9（2026-10-28）— CI 與 AC-16 跨平台

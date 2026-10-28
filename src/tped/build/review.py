@@ -2,9 +2,11 @@
 
 審查者逐題比對 PDF 視覺原文與 data/questions.json 之 L2（預期差異僅限 T），
 將 result 填為 pass／fail、reviewer 填姓名縮寫，並核對 inputs/exams.json 之考試日期來源。
+每題寫入 l2_digest（審查當下 L2 指紋）；之後 L2 改變即判 mg1_stale，不沿用舊判定。
 範本不會覆蓋既有 review 檔。
 """
 
+import re
 import sys
 
 from .. import jsonio
@@ -16,6 +18,9 @@ def main(argv: list[str]) -> int:
         print("usage: tped review-init EXAM_CODE", file=sys.stderr)
         return 2
     code = argv[0]
+    if not re.fullmatch(r"[0-9]{6}", code):
+        print(f"EXAM_CODE 必須為 6 位數字：{code!r}", file=sys.stderr)
+        return 2
     src = ROOT / "intermediate" / "mg1" / f"{code}.json"
     dst = ROOT / "review" / f"{code}.json"
     if not src.exists():
@@ -33,7 +38,8 @@ def main(argv: list[str]) -> int:
         "exam_date_source_url": exams.get(code, {}).get("exam_date_source_url"),
         "exam_date_source_quote": "",
         "not_applicable": mg1["not_applicable"],
-        "items": [{"id": i, "labels": mg1["labels"][i], "result": None, "reviewer": "", "note": ""} for i in mg1["sample"]],
+        "items": [{"id": i, "labels": mg1["labels"][i], "l2_digest": mg1["l2_digest"][i], "result": None, "reviewer": "", "note": ""}
+                  for i in mg1["sample"]],
     }, dst)
     print(f"已建立 {dst.relative_to(ROOT)}（{len(mg1['sample'])} 題）")
     return 0
