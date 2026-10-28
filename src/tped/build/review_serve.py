@@ -8,6 +8,7 @@ items[].result/reviewer/note 與 exam_date_source_quote（revs、題目集合不
 import argparse
 import io
 import json
+import os
 import re
 import sys
 import threading
@@ -115,7 +116,13 @@ class Store:
                 it["note"] = str(new.get("note") or "")[:2000]
             if "exam_date_source_quote" in body:
                 r["exam_date_source_quote"] = str(body["exam_date_source_quote"] or "")[:500]
-            jsonio.dump(r, path)
+            # 先寫同目錄暫存檔再原子替換：寫入中途失敗不得留下截斷之審查證據
+            tmp = path.with_name(path.name + ".tmp")
+            try:
+                jsonio.dump(r, tmp)
+                os.replace(tmp, path)
+            finally:
+                tmp.unlink(missing_ok=True)
             return {"ok": True}
 
 

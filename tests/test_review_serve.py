@@ -38,3 +38,22 @@ def test_save_rejects(store, body):
     with pytest.raises(ValueError):
         s.save("114020", body)
     assert path.read_bytes() == before
+
+
+def test_save_atomic_on_write_failure(store, monkeypatch):
+    """寫檔中途失敗（磁碟滿、程序中斷）不得留下截斷之審查檔：tmp + os.replace。"""
+    s, path = store
+    before = path.read_bytes()
+    from pathlib import Path
+    real = Path.write_bytes
+
+    def partial(self, data):
+        real(self, data[:10])
+        raise OSError("No space left on device")
+
+    monkeypatch.setattr(Path, "write_bytes", partial)
+    with pytest.raises(OSError):
+        s.save("114020", {"items": [{"id": "114-1-PHARM-P1-001", "result": "pass", "reviewer": "LG", "note": ""}]})
+    monkeypatch.setattr(Path, "write_bytes", real)
+    assert path.read_bytes() == before
+    assert sorted(p.name for p in path.parent.iterdir()) == [path.name], "不得殘留暫存檔"
