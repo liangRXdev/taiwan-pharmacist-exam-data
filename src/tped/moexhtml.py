@@ -9,6 +9,8 @@
 每列同時有桌機版（td.exam-question-ans）與手機版（a.exam-question-ans-mobile）連結，只讀桌機版。
 """
 
+import dataclasses
+import json
 import re
 from dataclasses import dataclass, field
 from urllib.parse import parse_qs, urlparse
@@ -162,6 +164,19 @@ def subject_page_block(html: str, exam_code: str) -> ExamBlock:
 _VOLATILE_RE = re.compile(r'(id="__(?:VIEWSTATE|VIEWSTATEGENERATOR|EVENTVALIDATION)" value=")[^"]*(")')
 
 
-def content_digest_source(html: str) -> str:
-    """去除 ASP.NET 每次請求都會變的隱藏欄位，僅供「內容是否變更」判斷；存證仍為原始位元組。"""
+def content_digest_source(html: str, exam_code: str | None = None) -> str:
+    """僅供「內容是否變更」判斷；存證仍為原始位元組。
+
+    科目頁（給 exam_code）只取該場考試名稱與藥師科目列之解析結果——compile 之 MOD 判定與身分比對只讀這些；
+    頁面其他部分（年度考試下拉選單新增他場考試、同場他類科更正）變動不得換 rev，否則 MG-1 全數 stale。
+    解析失敗退回整頁，異常頁一律另存新證據。年度頁去除 ASP.NET 每次請求都會變的隱藏欄位後整頁比對。
+    """
+    if exam_code is not None:
+        try:
+            block = subject_page_block(html, exam_code)
+        except PageStructureError:
+            pass
+        else:
+            scope = {"exam_code": block.exam_code, "name": block.name, "rows": [dataclasses.asdict(r) for r in block.pharm_rows()]}
+            return json.dumps(scope, ensure_ascii=False, sort_keys=True)
     return _VOLATILE_RE.sub(r"\1\2", html)

@@ -4,7 +4,7 @@
 
 | 項目 | 內容 |
 |---|---|
-| 版本 | v0.6（MG-1 未審與不符分離：`mg1_pending`） |
+| 版本 | v0.7（頁面 revision 新增條件：subject_list digest 限藥師科目列） |
 | 日期 | 2026-09-25 |
 | Owner | liangRXdev |
 | Tool tier | **L1**（有臨床/教學使用者，非劑量輸出）→ 需 `README.md` + `CLAUDE.md` + `CHANGELOG.md` |
@@ -239,6 +239,7 @@ manifest 只記錄**觀測到什麼、存在哪裡**；所有「判定」（univ
     {
       "rev": "sha256:…", "role": "year_list",  // year_list（y=）| subject_list（y=&e=）
       "url": "…", "fetched_at": "…", "http_status": 200, "final_url": "…",
+      "content_digest": "sha256:…",            // 僅供「是否變更」判斷，見下方「頁面 revision 新增條件」
       "raw_path": "raw/pages/{sha8}.html"
     }
   ],
@@ -278,6 +279,13 @@ manifest 只記錄**觀測到什麼、存在哪裡**；所有「判定」（univ
 - `absent`：以下全成立——`http_status == 200`；`final_url` 之 code == 該 `exam_code`；**positive control**：同頁同科 Q 連結可解析，且其參數與 `current.Q` 之 URL 相同；頁面不含該科 MOD 連結。
 - 其他一律 `inconclusive`。**404、空頁、解析不到任何連結皆非 `absent`。**
 - `original` 條件：判定為 `absent`，**且** 該頁 `fetched_at ≥ exam_date + 90 天**（更正窗口已過）。只看 `mod_page_rev`（最新一次），較舊的 `absent` 不得沿用。
+
+**頁面 revision 新增條件**：重抓之頁面與當前 rev 比對，下列任一成立才 append 新 page revision，否則沿用當前 rev：
+- `content_digest` 不同。subject_list 頁之 digest 只涵蓋該場考試名稱與**藥師科目列**之解析結果（compile 之 MOD 判定與身分比對只讀這些）；年度考試下拉選單、同場他類科之變動不計。區塊解析失敗退回整頁比對。year_list 頁去除 ASP.NET 隱藏欄位後整頁比對。
+- `http_status` 或 `final_url` 不同。
+- 跨更正窗口：當前 rev 抓於 `exam_date + 90` 之前、今日已過（D12）。
+
+當前 rev 之 digest 一律由其 raw 重算，不讀 manifest 欄位，digest 定義變更不致整批換 rev。理由：subject_list rev 即 MG-1 `revs.mod_page`，無關變動換 rev 會使人工審查全數 `mg1_stale`（2026-10-28 實例：年度選單新增 115111／115150）。
 
 **raw 不可變**：PDF 與 HTML 皆內容定址；同一 (tuple, kind) 出現新 hash → append revision、更新 `current`、PR 明示差異；舊檔保留，禁止覆寫。
 
@@ -565,6 +573,12 @@ taiwan-pharmacist-exam-data/
 ---
 
 ## 修訂紀錄
+
+### v0.7（2026-10-28）— 頁面 revision 新增條件
+
+| 改動 | 依據 |
+|---|---|
+| §4.6 明定頁面 revision 新增條件；subject_list digest 限該場藥師科目列；比對加入 `final_url`；當前 rev digest 由 raw 重算 | 年度選單新增他場考試即換 rev，使 115020 MG-1 判 `mg1_stale`；原實作另有 digest 前綴不一致致每次重抓皆換 rev |
 
 ### v0.6（2026-09-27）— MG-1 狀態細分
 

@@ -6,6 +6,8 @@
 - release 2026-10-28：新增 115 年第二次（115090）六科 450 題（corrected 320／original 130），MG-1 20 題人工抽樣通過；合計 6 場 35 科 2,620 題
 
 ### Fixed
+- acquire 科目頁 digest 只涵蓋該場藥師科目列：年度考試下拉選單新增他場考試、同場他類科更正不再換 rev（避免 MG-1 全數 `mg1_stale`）；比對加入 `final_url`；舊頁 digest 由 raw 重算（spec v0.7）
+- `tped acquire --help` 等未知參數不再被忽略後直接連線執行；`tped --help` 印出用法
 - acquire 科目頁去重比對 `content_digest` 前綴不一致，同內容重抓（僅 VIEWSTATE 不同）仍新增 revision，致全部 MG-1 審查判 `mg1_stale`
 
 ### Changed
