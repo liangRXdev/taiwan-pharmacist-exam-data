@@ -20,6 +20,10 @@ def _now() -> str:
     return datetime.now(TZ).isoformat(timespec="seconds")
 
 
+def _digest(html: bytes, exam_code: str | None) -> str:
+    return "sha256:" + manifest.sha256_hex(moexhtml.content_digest_source(html.decode("utf-8", "replace"), exam_code).encode("utf-8"))
+
+
 def _exam_dates() -> dict[str, date]:
     if not INPUTS_EXAMS_PATH.exists():
         return {}
@@ -39,11 +43,14 @@ class Acquirer:
     def _store_page(self, role: str, url: str, prev_rev: str | None, exam_code: str | None) -> tuple[str, bytes]:
         r = http.get(url)
         html = r.content
-        digest = "sha256:" + manifest.sha256_hex(moexhtml.content_digest_source(html.decode("utf-8", "replace")).encode("utf-8"))
+        digest = _digest(html, exam_code)
         if prev_rev is not None:
             prev = manifest.page_by_rev(self.m, prev_rev)
-            if prev["content_digest"] == digest and prev["http_status"] == r.status and not self._crosses_window(prev, exam_code):
-                return prev_rev, manifest.read_page(self.m, prev_rev)
+            prev_html = manifest.read_page(self.m, prev_rev)
+            # 舊頁 digest 由原始存證重算，不讀 manifest 之 content_digest：定義改過時不會整批誤判為變更
+            if (_digest(prev_html, exam_code) == digest and prev["http_status"] == r.status
+                    and prev["final_url"] == r.final_url and not self._crosses_window(prev, exam_code)):
+                return prev_rev, prev_html
         rev = manifest.rev_of(html)
         path = PAGES_DIR / f"{rev[7:15]}.html.gz"
         manifest.write_immutable(path, manifest.page_blob(html))
