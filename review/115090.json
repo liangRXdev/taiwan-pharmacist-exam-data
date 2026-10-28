@@ -52,6 +52,7 @@
         "script",
         "edge"
       ],
+      "l2_digest": "sha256:b5cfe9c51aadef20ed28bef6196bcd2148b01a6d544d310fe44960dec0ff0c69",
       "result": "pass",
       "reviewer": "LiangRxdev",
       "note": ""
@@ -59,6 +60,7 @@
     {
       "id": "115-2-PHARM-P1-014",
       "labels": [],
+      "l2_digest": "sha256:4bb2a2b49edf6ca0d205bf196aa8c7a13aa15815b7eab537c7ed7fa02d01f324",
       "result": "pass",
       "reviewer": "LiangRxdev",
       "note": ""
@@ -66,6 +68,7 @@
     {
       "id": "115-2-PHARM-P1-021",
       "labels": [],
+      "l2_digest": "sha256:9415314eea492726c913a10083576165d3bfecfde483fc4b77da8351f80bd0ca",
       "result": "pass",
       "reviewer": "LiangRxdev",
       "note": ""
@@ -75,6 +78,7 @@
       "labels": [
         "figure"
       ],
+      "l2_digest": "sha256:0ea36de469113dbb4972bb442a5aa7695dad41d2cbd7d94a749c689e0b7809aa",
       "result": "pass",
       "reviewer": "LiangRxdev",
       "note": ""
@@ -82,6 +86,7 @@
     {
       "id": "115-2-PHARM-P2-006",
       "labels": [],
+      "l2_digest": "sha256:03501e4276cbbea9375fc50a27587929d1e383d5ba3855acc7ce135245a3525f",
       "result": "pass",
       "reviewer": "LiangRxdev",
       "note": ""
@@ -91,6 +96,7 @@
       "labels": [
         "crosspage"
       ],
+      "l2_digest": "sha256:be4102961f4254b8915329a76ee57471c934399e8b00638bc092f9743dae4170",
       "result": "pass",
       "reviewer": "LiangRxdev",
       "note": ""
@@ -100,6 +106,7 @@
       "labels": [
         "compat"
       ],
+      "l2_digest": "sha256:8cac1d30dc738e5be5749cd8fbbd92e4cc6a1fd7bbf12765961217730e3b0029",
       "result": "pass",
       "reviewer": "LiangRxdev",
       "note": ""
@@ -107,6 +114,7 @@
     {
       "id": "115-2-PHARM-P2-070",
       "labels": [],
+      "l2_digest": "sha256:ca69efdff7509523a80ab9a3166681f37f6127b4bfef71703b9d7e1f31b045ff",
       "result": "pass",
       "reviewer": "LiangRxdev",
       "note": ""
@@ -114,6 +122,7 @@
     {
       "id": "115-2-PHARM-P2-076",
       "labels": [],
+      "l2_digest": "sha256:e8555786ca840a710db34295fe54099143e70a30853b18a120f1e2ccf2a9285e",
       "result": "pass",
       "reviewer": "LiangRxdev",
       "note": ""
@@ -123,6 +132,7 @@
       "labels": [
         "corrected"
       ],
+      "l2_digest": "sha256:0931be2eb723c75c188fc5335eeb7f74e03c99646e1862287b9b43b0cbfb52b3",
       "result": "pass",
       "reviewer": "LiangRxdev",
       "note": ""
@@ -132,6 +142,7 @@
       "labels": [
         "script"
       ],
+      "l2_digest": "sha256:36df93551cbfdbb496387523b8cdbc4736123303409748951809c09d93ce32ba",
       "result": "pass",
       "reviewer": "LiangRxdev",
       "note": ""
@@ -139,6 +150,7 @@
     {
       "id": "115-2-PHARM-P4-015",
       "labels": [],
+      "l2_digest": "sha256:14f50609ea9cd47619c1311dfe4131b8e0fc320e40409d62142894061dd35c46",
       "result": "pass",
       "reviewer": "LiangRxdev",
       "note": ""
@@ -146,6 +158,7 @@
     {
       "id": "115-2-PHARM-P4-030",
       "labels": [],
+      "l2_digest": "sha256:cac8caa6051578079db5715144e03ba7dd20fe76c429ecd098628f9dc9f63aeb",
       "result": "pass",
       "reviewer": "LiangRxdev",
       "note": ""
@@ -155,6 +168,7 @@
       "labels": [
         "crosspage"
       ],
+      "l2_digest": "sha256:3c3014dac0971aa2a37a2406c6de455d0d4a1ed7d82f39b2eb5fa1003b65f14a",
       "result": "pass",
       "reviewer": "LiangRxdev",
       "note": ""
@@ -162,6 +176,7 @@
     {
       "id": "115-2-PHARM-P4-072",
       "labels": [],
+      "l2_digest": "sha256:61915a11e4318c4ab52af4206f9254b091913cfdb784ef14c1dd26f4b625549c",
       "result": "pass",
       "reviewer": "LiangRxdev",
       "note": ""
@@ -169,6 +184,7 @@
     {
       "id": "115-2-PHARM-P4-073",
       "labels": [],
+      "l2_digest": "sha256:b4633499204b505b1c4fffd5c881da83381a5b31c01865ef37d7fd4f50b43d6e",
       "result": "pass",
       "reviewer": "LiangRxdev",
       "note": ""
@@ -178,6 +194,7 @@
       "labels": [
         "script"
       ],
+      "l2_digest": "sha256:3ef752e3aab6b95887e8479421601a033c2c0ddbdbc0cee36f0b4740d5863e92",
       "result": "pass",
       "reviewer": "LiangRxdev",
       "note": ""
@@ -185,6 +202,7 @@
     {
       "id": "115-2-PHARM-P5-062",
       "labels": [],
+      "l2_digest": "sha256:1b6ed50d2feb0dc040c29a1669f69d571b449a61f9d09f2eccec2f902fcfcae3",
       "result": "pass",
       "reviewer": "LiangRxdev",
       "note": ""
@@ -194,6 +212,7 @@
       "labels": [
         "crosspage"
       ],
+      "l2_digest": "sha256:ced64d323fb5e7301fba662f1f465b7758c9e4f338cb9e0a2acdaac40f38a597",
       "result": "pass",
       "reviewer": "LiangRxdev",
       "note": ""
@@ -203,6 +222,7 @@
       "labels": [
         "edge"
       ],
+      "l2_digest": "sha256:aa5ef0674abe07a912362d1592d3130754af03e75fef59d9c3307aadf71be718",
       "result": "pass",
       "reviewer": "LiangRxdev",
       "note": ""

@@ -43,12 +43,12 @@ def test_partial_l2_digest_is_stale():
     assert _v(r) == "stale"
 
 
-def test_legacy_review_without_digest_not_checked():
-    """遷移待決（PR 列明）：全部缺 l2_digest 之既有審查檔暫不比對，行為同 v0.9。"""
+def test_missing_l2_digest_is_stale():
+    """legacy 分支已移除（v0.11）：全部缺 l2_digest 亦判 stale，須以 review-backfill-digest 回填。"""
     r = _review()
     for it in r["items"]:
         del it["l2_digest"]
-    assert _v(r, digests={"a": "sha256:x", "b": "sha256:y"}) == "pass"
+    assert _v(r) == "stale"
 
 
 def test_l2_digest_definition():

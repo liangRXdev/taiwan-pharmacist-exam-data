@@ -3,7 +3,7 @@
 import sys
 import traceback
 
-USAGE = "usage: tped {acquire|compile --release-date YYYY-MM-DD|oracle-check|review-init EXAM_CODE|review-serve}"
+USAGE = "usage: tped {acquire|compile --release-date YYYY-MM-DD|oracle-check|review-init EXAM_CODE|review-backfill-digest EXAM_CODE|--all|review-serve}"
 HELP = {"-h", "--help"}
 
 
@@ -16,7 +16,7 @@ def main() -> None:
     if argv[:1] and argv[0] in HELP:
         print(USAGE)
         sys.exit(0)
-    if not argv or argv[0] not in {"acquire", "compile", "oracle-check", "review-init", "review-serve"}:
+    if not argv or argv[0] not in {"acquire", "compile", "oracle-check", "review-init", "review-backfill-digest", "review-serve"}:
         print(USAGE, file=sys.stderr)
         sys.exit(2)
     cmd, rest = argv[0], argv[1:]
@@ -32,6 +32,8 @@ def main() -> None:
             from .build.run import main as run
         elif cmd == "review-init":
             from .build.review import main as run
+        elif cmd == "review-backfill-digest":
+            from .build.review_backfill import main as run
         elif cmd == "review-serve":
             from .build.review_serve import main as run
         else:

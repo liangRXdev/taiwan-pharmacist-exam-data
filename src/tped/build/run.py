@@ -45,9 +45,8 @@ def _review_stale(review: dict, items: list[dict], sample: list[str], digests: d
     ids = [it.get("id") for it in items]
     if len(ids) != len(set(ids)) or sorted(ids) != sample:
         return True
-    # 遷移待決：全部缺 l2_digest 之既有審查檔（v0.9 以前建立）暫不比對；部分缺 → 視為不符
-    has = [it for it in items if "l2_digest" in it]
-    if has and (len(has) != len(items) or any(it["l2_digest"] != digests.get(it["id"]) for it in items)):
+    # 任一題缺 l2_digest → 不符（v0.9 以前之審查檔以 tped review-backfill-digest 回填）
+    if any(it.get("l2_digest") is None or it["l2_digest"] != digests.get(it["id"]) for it in items):
         return True
     exp = exam or {}
     return (review.get("exam_date"), review.get("exam_date_source_url")) != (exp.get("exam_date"), exp.get("exam_date_source_url"))

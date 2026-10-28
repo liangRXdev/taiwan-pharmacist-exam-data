@@ -4,7 +4,7 @@
 
 | 項目 | 內容 |
 |---|---|
-| 版本 | v0.10（2026-10 覆審修正：選項標記誤切、MG-1 綁 L2 內容、acquire 頁面驗證） |
+| 版本 | v0.11（MG-1 l2_digest 回填、移除 legacy 分支） |
 | 日期 | 2026-10-28 |
 | Owner | liangRXdev |
 | Tool tier | **L1**（有臨床/教學使用者，非劑量輸出）→ 需 `README.md` + `CLAUDE.md` + `CHANGELOG.md` |
@@ -460,7 +460,9 @@ subject_list 頁之非 200 或 redirect 仍存入 `pages`（保留證據），co
 5. `seed` = 該場六科 `current.Q` rev 依 subject 排序串接。
 6. 某標籤於該場無成員 → 證據檔記錄「不適用」；AC-15 確保 v1 範圍內偵測器不會整體失效。
 
-**L2 綁定**：`review-init` 於每題寫入 `l2_digest` = `sha256:` + SHA256（canonical JSON `{"accepted_answers","options","stem"}`，`sort_keys`、`separators=(",",":")`、UTF-8）。revs 不變但 parser／T 變更使 L2 改變時，舊人工判定不得沿用。**遷移（待決）**：v0.9 以前建立、全部題目皆缺 `l2_digest` 之審查檔暫不比對；部分缺 → `mg1_stale`。
+**L2 綁定**：`review-init` 於每題寫入 `l2_digest` = `sha256:` + SHA256（canonical JSON `{"accepted_answers","options","stem"}`，`sort_keys`、`separators=(",",":")`、UTF-8）。revs 不變但 parser／T 變更使 L2 改變時，舊人工判定不得沿用。任一題缺 `l2_digest` → `mg1_stale`。
+
+**回填**：`tped review-backfill-digest EXAM_CODE | --all` 供 v0.10 以前建立之審查檔一次性補上 `l2_digest`，取值為目前 compile 產出之 `intermediate/mg1/{code}.json`；只寫此欄位，其他欄位（判定、審查者、日期摘錄、日期）不動，寫檔為暫存檔 + `os.replace`。前置檢查：review 之 revs、樣本 id（無重複）、`exam_date`／`exam_date_source_url` 與目前一致，且全部題目 pass、審查者與日期摘錄非空（即除缺 digest 外等同 `mg1_pass`）；不成立 → 拒絕、exit 1。部分題目已有 `l2_digest` → 拒絕；全部已有 → 略過。`--all` 先全部檢查，任一不符則一檔都不寫。回填之正當性前提：回填時之 L2 即審查者當時所見（2026-10-28 回填 6 場 120 題時，release/questions.json 與審查時逐 byte 相同）。
 
 ---
 
@@ -584,6 +586,12 @@ M0–M2 已完成（release 2026-10-28：6 場 35 科 2,620 題）。
 ---
 
 ## 修訂紀錄
+
+### v0.11（2026-10-28）— l2_digest 回填
+
+| 改動 | 依據 |
+|---|---|
+| §6.2：新增 `tped review-backfill-digest` 與前置檢查；移除遷移條款，任一題缺 `l2_digest` → `mg1_stale`；repo 內 6 場審查檔已回填（只新增 `l2_digest`） | 使用者裁決 PR #5「待決 1」：同意由目前 L2 回填 |
 
 ### v0.10（2026-10-28）— 2026-10 覆審修正
 
