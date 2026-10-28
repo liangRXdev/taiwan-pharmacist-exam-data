@@ -11,6 +11,7 @@
 - acquire 科目頁去重比對 `content_digest` 前綴不一致，同內容重抓（僅 VIEWSTATE 不同）仍新增 revision，致全部 MG-1 審查判 `mg1_stale`
 
 ### Changed
+- `spec.md` v0.8：GitHub Actions 排程暫緩（D14），§8 改為手動執行方式（考後 90 天發布、180 天複查）
 - 115090、115020 之 MG-1 審查紀錄 `revs.mod_page` 更新為 2026-10-28 科目頁；Q/ANS/MOD、抽樣集合與標籤皆不變，人工判定沿用（115020 頁面變動僅為年度下拉選單新增非藥師考試）
 
 ### Added
