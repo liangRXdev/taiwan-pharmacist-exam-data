@@ -1,6 +1,7 @@
 """Release 資格（spec §5.4）與 MG-1 抽樣（spec §6.2）。純函式。"""
 
 import hashlib
+import json
 from dataclasses import dataclass
 from datetime import date
 
@@ -70,6 +71,12 @@ def mg1_sample(labels: dict[str, list[str]], seed: str) -> list[str]:
     rest = sorted((i for i in ids if i not in chosen), key=lambda i: _h(seed, i))
     chosen += rest[:SAMPLE_SIZE - len(chosen)]
     return sorted(chosen)
+
+
+def l2_digest(rec: dict) -> str:
+    """MG-1 審查所見之 L2 內容指紋：stem + options + accepted_answers（canonical JSON，避免串接歧義）。"""
+    body = {"stem": rec["stem"], "options": rec["options"], "accepted_answers": rec["accepted_answers"]}
+    return "sha256:" + hashlib.sha256(json.dumps(body, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
 
 
 def mg1_not_applicable(labels: dict[str, list[str]]) -> list[str]:

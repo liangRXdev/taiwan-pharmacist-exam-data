@@ -4,7 +4,7 @@
 
 | 項目 | 內容 |
 |---|---|
-| 版本 | v0.9（AC-16 斷言不綁平台碼位；新增 CI） |
+| 版本 | v0.10（2026-10 覆審修正：選項標記誤切、MG-1 綁 L2 內容、acquire 頁面驗證） |
 | 日期 | 2026-10-28 |
 | Owner | liangRXdev |
 | Tool tier | **L1**（有臨床/教學使用者，非劑量輸出）→ 需 `README.md` + `CLAUDE.md` + `CHANGELOG.md` |
@@ -224,7 +224,7 @@ T 逐字元 1→1（除空白折疊與控制字元移除），故 small 旗標�
 | 組行 | 本文字型字元以「垂直重疊 > 字高 50%」聚為一行；小字型字元（< 本文 0.8 倍）併入垂直重疊最多之本文行，再依 x 排序。**不使用** `extract_text_lines`：115 年下標以略低 baseline 排版，會被切成獨立一行並排到本行之後（`β₂ receptor` → `β receptor … 2`） |
 | 詞間空白 | (1) 有空白 glyph：丟棄之條件為「glyph 起點深入前一字元 > 1pt **且** 前後可見字元視覺間距 < 1pt」，其餘保留。Word 2013/2021 產出之 PDF 在清單標記後第一字元處放一個重疊空白（`A.g uanylyl` 實為 `A.guanylyl`，`a spirin` 實為 `aspirin`）；斜體學名之空白視覺間距 ≈ 0 但未重疊（`Streptococcus pneumoniae`）必須保留。(2) 無空白 glyph：視覺字距 ≥ 2pt 推定為空白（Skia 產出之 PDF 常省略空白 glyph）。規則依據為 2026-09 對全部 36 份試題 PDF 之空白 glyph 分類統計與渲染比對 |
 | 題號 | 行首 `{n}.`，n 必須等於下一個預期題號，**且行首 x 位於全文件最左邊界 +2pt 內**（題幹續行與選項皆為懸掛縮排，實測縮排 ≥ 10pt）。不限制 `.` 後字元（題幹可為 `14.25℃時…`、`2.57歲女性…`） |
-| 選項 | 行首 `{K}.`，K 必須等於下一個預期選項；同行內以「空白 + 下一個 K.」切出後續選項；標記本身不進 L2 |
+| 選項 | 行首 `{K}.`，K 必須等於下一個預期選項；同行內以「空白 + 下一個 K.」切出後續選項；標記本身不進 L2。**`K.` 之後為「空白 + 小寫拉丁字母」者不是標記**（屬名縮寫 `B. subtilis`、`C. tetani`；2026-10 語料：真實標記 0 例為此形，3,749 例為 `K.` 直接緊接小寫，故後者不可排除）。續行（非題號、非選項標記行）以 `[A-D].` 開頭 → 該科 `parse_fail`（標記錯位之證據，不猜測歸屬） |
 | 行接合 | 前一行右端 ≥ 版心右界 − 2 × 本文字級 → 軟換行：兩側為 ASCII 非連字號與 ASCII 英數時補一空白，否則直接接合；否則硬換行，保留 `\n` |
 | 首題前 | `※` 開頭 → `instruction`，其餘 → `header` |
 
@@ -272,7 +272,7 @@ manifest 只記錄**觀測到什麼、存在哪裡**；所有「判定」（univ
 - `revisions` 依 (fetched_at, rev) 升冪。
 - `discovery` 引用之每個 rev 皆存在於 `pages`。
 
-**Universe（compile 重算）**：解析 `discovery.year_list_revs` 所指頁面之 `<select>` option，取民國 113 年起、其 subject_list 頁含類科「藥師」之 `exam_code`；universe ＝ 該集合 × {P1..P6}。`tuples` 必須與 universe **完全相等**（AC-0）。任一 year_list 頁缺失或無法解析 → 整次 compile FAIL，不得以部分 universe 繼續。
+**Universe（compile 重算）**：解析 `discovery.year_list_revs` 所指頁面之 `<select>` option，取民國 113 年起、其 subject_list 頁含類科「藥師」之 `exam_code`；universe ＝ 該集合 × {P1..P6}。`tuples` 必須與 universe **完全相等**（AC-0）。任一 year_list 頁缺失、非 200 或無法解析 → 整次 compile FAIL，不得以部分 universe 繼續。**year_list 頁交叉驗證**（acquire 與 compile 皆執行）：`ddlExamCode` 下拉選單必須存在；其 option `exam_code` 集合必須 == 表格區塊（`td.level1`）之 `exam_code` 集合，且全部屬於請求之年度（防表格改版致 universe 靜默縮小、防 session 狀態回傳他年度頁）。acquire 於寫入 raw 前驗證，不通過即中止、不寫 manifest。
 
 **MOD 判定（compile 重算，依 H1 定案之規則）**：對 `mod_page_rev` 所指頁面：
 - `present`：頁面含該科 MOD 連結 → 必須有 `current.MOD`，否則 FAIL。
@@ -380,7 +380,7 @@ manifest 只記錄**觀測到什麼、存在哪裡**；所有「判定」（univ
 | retryable | 逾時、429、5xx、連線錯誤 | 重試 3 次（指數退避）；仍失敗 → 本次 run 失敗，**不修改 manifest**，`sys.exit(1)` |
 | unusable | 非 PDF（HTML 偽裝）、截斷、表頭身分不符、redirect 至其他 code | 科目 `parked`（`fetch_fail`／`identity_mismatch`），`sys.exit(1)` |
 
-subject_list 頁之非 200 或 redirect 仍存入 `pages`（保留證據），compile 會判為 `inconclusive`。
+subject_list 頁之非 200 或 redirect 仍存入 `pages`（保留證據），compile 會判為 `inconclusive`；**不中止整次 acquire**：該場只更新 `discovery.subject_list_revs` 與該場各 tuple 之 `mod_page_rev`，不下載 PDF，記入 problems（run 結束 exit 1）。year_list 頁非 200 → 整次中止、不寫 manifest。acquire 期 `parked`（`stage: acquire`）之 tuple 一律重抓，不受 MOD 複查窗口（`age ≤ 180`）限制。`requests` 任何請求例外歸 retryable；PDF 無法開啟（pdfplumber 例外）歸 unusable（`fetch_fail`）。
 
 ### 5.3 併發
 
@@ -397,7 +397,7 @@ subject_list 頁之非 200 或 redirect 仍存入 `pages`（保留證據），co
 | E2 | tuple 全部自動 AC 通過 | `parked:[parse_fail…]` |
 | E3 | `answer_status ∈ {corrected, original}` | `withheld:[unverified]` |
 | E4 | `inputs/exams.json` 有該場且 `age ≥ 90` | `withheld:[exam_date_missing]` 或 `[too_recent]` |
-| E5 | `review/{exam_code}.json` 存在、其 revs == 本次 compile 實際使用之 current revs、全部 pass | `withheld:[mg1_missing]`／`[mg1_stale]`（revs 或樣本集合不符）／`[mg1_failed]`（任一題 fail）／`[mg1_pending]`（無 fail 但有題未判定、缺審查者或缺日期摘錄） |
+| E5 | `review/{exam_code}.json` 存在、其 revs == 本次 compile 實際使用之 current revs、全部 pass | `withheld:[mg1_missing]`／`[mg1_stale]`（revs、樣本集合（含重複 id）、逐題 `l2_digest`、或 `exam_date`／`exam_date_source_url` 與 `inputs/exams.json` 任一不符）／`[mg1_failed]`（任一題 fail）／`[mg1_pending]`（無 fail 但有題未判定、審查者或日期摘錄為空或僅空白） |
 
 不符者整科列入 `coverage.json`，不得靜默缺漏。
 
@@ -441,7 +441,7 @@ subject_list 頁之非 200 或 redirect 仍存入 `pages`（保留證據），co
 
 | ID | 內容 | CI 驗證方式 |
 |---|---|---|
-| MG-1 | 每場一份 `review/{exam_code}.json`：（a）核對 `inputs/exams.json` 之日期與來源頁一致，摘錄 `exam_date_source_quote`；（b）以下演算法選出 20 題，逐題比對 PDF 視覺原文與 L2（預期差異僅限 T） | 證據檔存在；revs == 本次 compile 使用之 current revs；題目 ID 集合 == 以演算法重算之集合；每題有 pass/fail 與審查者 |
+| MG-1 | 每場一份 `review/{exam_code}.json`：（a）核對 `inputs/exams.json` 之日期與來源頁一致，摘錄 `exam_date_source_quote`；（b）以下演算法選出 20 題，逐題比對 PDF 視覺原文與 L2（預期差異僅限 T） | 證據檔存在；revs == 本次 compile 使用之 current revs；題目 ID 集合 == 以演算法重算之集合；每題 `l2_digest` == 重算值；`exam_date`、`exam_date_source_url` == `inputs/exams.json`；每題有 pass/fail 與審查者 |
 
 **MG-1 抽樣演算法（決定性）**：
 
@@ -459,6 +459,8 @@ subject_list 頁之非 200 或 redirect 仍存入 `pages`（保留證據），co
 4. 已選 > 20：依標籤順序保留至 20 題（每標籤至少一題優先）；< 20：自剩餘候選依 `sha256(seed + id)` 升冪補足。
 5. `seed` = 該場六科 `current.Q` rev 依 subject 排序串接。
 6. 某標籤於該場無成員 → 證據檔記錄「不適用」；AC-15 確保 v1 範圍內偵測器不會整體失效。
+
+**L2 綁定**：`review-init` 於每題寫入 `l2_digest` = `sha256:` + SHA256（canonical JSON `{"accepted_answers","options","stem"}`，`sort_keys`、`separators=(",",":")`、UTF-8）。revs 不變但 parser／T 變更使 L2 改變時，舊人工判定不得沿用。**遷移（待決）**：v0.9 以前建立、全部題目皆缺 `l2_digest` 之審查檔暫不比對；部分缺 → `mg1_stale`。
 
 ---
 
@@ -582,6 +584,15 @@ M0–M2 已完成（release 2026-10-28：6 場 35 科 2,620 題）。
 ---
 
 ## 修訂紀錄
+
+### v0.10（2026-10-28）— 2026-10 覆審修正
+
+| 改動 | 依據 |
+|---|---|
+| §4.6 Universe：year_list 頁之 `ddlExamCode` 選單與表格區塊 code 集合必須相等且屬請求年度；acquire 年度頁非 200 中止 | 原僅解析表格，選單（`parse_exam_options`）未被呼叫；年度頁 404／改版會使 universe 靜默縮小 |
+| §5.2：科目頁非 200 不中止 acquire（只更新 `subject_list_revs`／`mod_page_rev`、記 problems）；acquire parked 一律重抓；`RequestException` 歸 retryable；PDF 開檔例外歸 unusable | 原單場科目頁 302 即中止整次 acquire；acquire parked 於考後 180 天後永不重抓 |
+| §5.4 E5／§6.2 MG-1：逐題 `l2_digest`、`exam_date`／`exam_date_source_url` 與 inputs 不符 → `mg1_stale`；items id 重複 → `mg1_stale`；審查者僅空白 → `mg1_pending` | 審查結果僅綁 PDF revs，parser 變更致 L2 改變仍沿用舊判定；inputs 日期更正後舊審查仍放行 |
+| §4.5.1 選項：`K.` + 空白 + 小寫不是標記；續行以 `[A-D].` 開頭 → `parse_fail` | 合成重現：選項 A「以 B. subtilis 為指標」被切成 A='以'、B='subtilis 為指標…'，unattributed 0、AC-2/AC-7 全過 |
 
 ### v0.9（2026-10-28）— CI 與 AC-16 跨平台
 

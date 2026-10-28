@@ -55,7 +55,7 @@ def test_ac6_release_equals_eligible(compiled):
     mg1 = {c["exam_code"]: json.loads((compiled["out"] / "intermediate" / "mg1" / f"{c['exam_code']}.json").read_text(encoding="utf-8"))
            for c in compiled["coverage"]}
     for code, m in mg1.items():
-        v = run._review_verdict(run._load_review(code), m["sample"])
+        v = run._review_verdict(run._load_review(code), m["sample"], digests=m["l2_digest"], exam=run._load_exam_inputs().get(code))
         if v is None or v["result"] != "pass" or v["revs"] != m["revs"]:
             assert not any(e == code for e, _ in released), f"{code} MG-1 未通過卻放行"
     mg1_reasons = {"mg1_missing", "mg1_stale", "mg1_pending", "mg1_failed"}
@@ -139,25 +139,26 @@ def test_mg1_sample_deterministic_and_covering():
 
 def test_mg1_review_verdict():
     sample = ["a", "b"]
+    verdict = lambda r, s: run._review_verdict(r, s, digests={}, exam=None)
     ok = {"revs": REVS, "exam_date_source_quote": "…", "items": [{"id": "a", "result": "pass", "reviewer": "r"}, {"id": "b", "result": "pass", "reviewer": "r"}]}
-    assert run._review_verdict(ok, sample)["result"] == "pass"
+    assert verdict(ok, sample)["result"] == "pass"
     bad = copy.deepcopy(ok)
     bad["items"][1]["result"] = "fail"
-    assert run._review_verdict(bad, sample)["result"] == "fail"
+    assert verdict(bad, sample)["result"] == "fail"
     wrong = copy.deepcopy(ok)
     wrong["items"] = wrong["items"][:1]
-    assert run._review_verdict(wrong, sample)["result"] == "stale", "樣本與演算法重算不符"
+    assert verdict(wrong, sample)["result"] == "stale", "樣本與演算法重算不符"
     noquote = copy.deepcopy(ok)
     noquote["exam_date_source_quote"] = ""
-    assert run._review_verdict(noquote, sample)["result"] == "pending", "未核對考試日期來源"
+    assert verdict(noquote, sample)["result"] == "pending", "未核對考試日期來源"
     blank = {"revs": REVS, "exam_date_source_quote": "", "items": [{"id": i, "result": None, "reviewer": "", "note": ""} for i in sample]}
-    assert run._review_verdict(blank, sample)["result"] == "pending", "review-init 剛產生之空範本 = 未審，非不符"
+    assert verdict(blank, sample)["result"] == "pending", "review-init 剛產生之空範本 = 未審，非不符"
     noreviewer = copy.deepcopy(ok)
     noreviewer["items"][0]["reviewer"] = ""
-    assert run._review_verdict(noreviewer, sample)["result"] == "pending"
+    assert verdict(noreviewer, sample)["result"] == "pending"
     mixed = copy.deepcopy(blank)
     mixed["items"][0]["result"] = "fail"
-    assert run._review_verdict(mixed, sample)["result"] == "fail", "已有不符時優先於未審完"
+    assert verdict(mixed, sample)["result"] == "fail", "已有不符時優先於未審完"
 
 
 # ---------- AC-5：兩次乾淨 compile 位元組相同，且不改動 snapshot ----------

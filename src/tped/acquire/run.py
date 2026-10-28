@@ -5,11 +5,15 @@
   2. 逐場抓科目頁（e=code）→ 存證 → 列出 P1–P6 科目列
   3. 逐科下載 Q / ANS / MOD，驗證表頭身分後內容定址存放，append revision
 
-任一 Retryable → 整次中止、不寫 manifest。Unusable → 該科 parked，其餘繼續，結束時 exit 1。
+任一 Retryable、年度頁非 200 或結構漂移 → 整次中止、不寫 manifest。
+Unusable → 該科 parked；科目頁非 200 → 存證並記 problems（compile 判 inconclusive）；其餘繼續，結束時 exit 1。
 """
 
 import sys
+from collections.abc import Callable
 from datetime import date, datetime
+
+from pdfplumber.utils.exceptions import MalformedPDFException, PdfminerException
 
 from .. import jsonio, manifest, moexhtml, pdfhead, subjects
 from ..config import FIRST_YEAR_ROC, INPUTS_EXAMS_PATH, KINDS, MOD_RECHECK_MAX_AGE_DAYS, PAGES_DIR, RAW_DIR, RELEASE_MIN_AGE_DAYS, ROOT, TZ
@@ -40,8 +44,11 @@ class Acquirer:
 
     # ---------- 頁面 ----------
 
-    def _store_page(self, role: str, url: str, prev_rev: str | None, exam_code: str | None) -> tuple[str, bytes]:
+    def _store_page(self, role: str, url: str, prev_rev: str | None, exam_code: str | None,
+                    check: Callable[[http.Response], None] | None = None) -> tuple[str, bytes]:
         r = http.get(url)
+        if check is not None:
+            check(r)        # 於寫入 raw 前驗證：不通過即中止，不留孤兒檔
         html = r.content
         digest = _digest(html, exam_code)
         if prev_rev is not None:
@@ -79,9 +86,10 @@ class Acquirer:
         disc = self.m["discovery"]
         for year_ce in range(FIRST_YEAR_ROC + 1911, self.today.year + 1):
             key = str(year_ce)
-            rev, html = self._store_page("year_list", discover.year_list_url(year_ce), disc["year_list_revs"].get(key), None)
+            rev, html = self._store_page("year_list", discover.year_list_url(year_ce), disc["year_list_revs"].get(key), None,
+                                         check=lambda r, y=year_ce: _check_year_page(r, y))
             disc["year_list_revs"][key] = rev
-            codes += moexhtml.pharm_exam_codes(html.decode("utf-8"))
+            codes += moexhtml.pharm_exam_codes(html.decode("utf-8"), year_ce)
         for code in sorted(set(codes)):
             self._exam(code)
 
@@ -93,6 +101,14 @@ class Acquirer:
         disc = self.m["discovery"]["subject_list_revs"]
         rev, html = self._store_page("subject_list", discover.subject_list_url(code), disc.get(code), code)
         disc[code] = rev
+        page = manifest.page_by_rev(self.m, rev)
+        if page["http_status"] != 200:
+            # 單場科目頁異常不中止整次 acquire：存證並指向此頁，compile 之 MOD 判定為 inconclusive（spec §5.2）
+            for t in self.m["tuples"]:
+                if t["exam_code"] == code:
+                    t["mod_page_rev"] = rev
+            self.problems.append(f"{code} 科目頁 HTTP {page['http_status']}（Location={page['final_url']}）：已存證、未下載 PDF")
+            return
         block = moexhtml.subject_page_block(html.decode("utf-8"), code)
         seen: dict[str, moexhtml.SubjectRow] = {}
         for row in block.pharm_rows():
@@ -116,7 +132,9 @@ class Acquirer:
             self._park(block.exam_code, p, "identity_mismatch", f"官方代碼變更 {t['category_code']}/{t['subject_file_code']} → {row.category_code}/{row.subject_file_code}")
             return
         t["mod_page_rev"] = page_rev
-        need_fetch = self._in_recheck_window(block.exam_code) or any(t["current"][k] is None and row.links[k] for k in KINDS)
+        # acquire 期 parked 一律重抓：否則超過複查窗口後永遠無法解除
+        need_fetch = (self._in_recheck_window(block.exam_code) or any(t["current"][k] is None and row.links[k] for k in KINDS)
+                      or (t["parked"] is not None and t["parked"]["stage"] == "acquire"))
         if not need_fetch:
             return
         try:
@@ -146,6 +164,8 @@ class Acquirer:
         tmp.write_bytes(data)
         try:
             h = pdfhead.read_header(tmp)
+        except (PdfminerException, MalformedPDFException) as e:
+            raise http.Unusable(f"{url}：PDF 無法開啟（{e}）") from e
         finally:
             tmp.unlink()
         check_identity(h, kind, block, row, p)
@@ -165,6 +185,13 @@ class Acquirer:
 
 class IdentityError(ValueError):
     pass
+
+
+def _check_year_page(r: http.Response, year_ce: int) -> None:
+    """年度頁決定 universe：非 200 或下拉選單／表格區塊不一致 → 整次中止（spec §4.6）。"""
+    if r.status != 200:
+        raise moexhtml.PageStructureError(f"年度頁 {year_ce} HTTP {r.status}（Location={r.final_url}）")
+    moexhtml.year_page_blocks(r.content.decode("utf-8"), year_ce)
 
 
 def check_identity(h: pdfhead.Header, kind: str, block: moexhtml.ExamBlock, row: moexhtml.SubjectRow, p: str) -> None:

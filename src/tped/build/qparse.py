@@ -1,8 +1,10 @@
 """試題 PDF → 題目（spec §4.5、§4.7、§5.5）。
 
 切分規則（決定性）：
-  - 題號：行首 `{n}.`（n 必須等於下一個預期題號、`.` 後不得緊接數字）
-  - 選項：行首 `{K}.`，K 必須等於下一個預期選項；同行內以「空白 + K.」切出後續選項
+  - 題號：行首 `{n}.`，n 必須等於下一個預期題號，且行首 x 位於全文件最左邊界 +2pt 內（不限制 `.` 後字元）
+  - 選項：行首 `{K}.`，K 必須等於下一個預期選項；同行內以「空白 + K.」切出後續選項。
+    `K.` 之後為「空白 + 小寫拉丁字母」者為屬名縮寫（`B. subtilis`），不是標記
+  - 續行（非題號、非選項標記行）以 `[A-D].` 開頭 → ParseError（標記錯位之證據，不猜測歸屬）
   - 首題之前的行：`※` 開頭 → instruction，其餘 → header
   - 行接合：前一行右端 ≥ 版心右界 − 2 × 本文字級 → 軟換行（接合），否則硬換行（保留 \\n）
 """
@@ -15,6 +17,8 @@ from .pdftext import Ch, DocText, Graphic, Line
 
 OPTION_KEYS = ("A", "B", "C", "D")
 _QNO_RE = re.compile(r"^(\d{1,3})[.．]")
+_NOT_GENUS = r"(?! +[a-z])"      # 語料：真實標記 0 例為「K. + 空白 + 小寫」；屬名縮寫皆為此形
+_STRAY_MARKER_RE = re.compile(r"^[A-D][.．]")
 LEFT_MARGIN_TOL = 2.0   # 題號行位於最左邊界；題幹續行與選項為懸掛縮排（實測縮排 ≥ 10pt）
 
 
@@ -95,14 +99,14 @@ class ParsedDoc:
 def _option_markers_in_line(line: Line, expect: str, from_pos: int) -> list[tuple[str, int]]:
     """行首（from_pos）必須為 expect；之後以「空白 + 下一個 K.」切分。"""
     text = line.text
-    if not (text[from_pos:from_pos + 1] == expect and text[from_pos + 1:from_pos + 2] in (".", "．")):
+    if not re.compile(expect + r"[.．]" + _NOT_GENUS).match(text, from_pos):
         return []
     found = [(expect, from_pos)]
     nxt = OPTION_KEYS.index(expect) + 1
     i = from_pos + 2
     while nxt < len(OPTION_KEYS):
         k = OPTION_KEYS[nxt]
-        m = re.compile(r"(?<= )" + k + r"[.．]").search(text, i)
+        m = re.compile(r"(?<= )" + k + r"[.．]" + _NOT_GENUS).search(text, i)
         if not m:
             break
         found.append((k, m.start()))
@@ -145,6 +149,8 @@ def _split(doc: DocText) -> tuple[list[QDraft], list[Line], list[Line]]:
                     cur.options[k].append(Frag(line, pos + 2, end))
             target = cur.options[found[-1][0]]
             continue
+        if _STRAY_MARKER_RE.match(text):
+            raise ParseError(f"第 {cur.no} 題續行以選項標記開頭（預期 {expect or '無'}）：{text[:30]!r}")
         target.append(Frag(line, 0, len(text)))
     return questions, header, instruction
 

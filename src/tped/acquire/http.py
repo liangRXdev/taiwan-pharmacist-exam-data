@@ -43,7 +43,7 @@ def get(url: str) -> Response:
         _throttle()
         try:
             r = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=REQUEST_TIMEOUT_S, allow_redirects=False)
-        except (requests.Timeout, requests.ConnectionError) as e:
+        except requests.RequestException as e:
             last_err = e
         else:
             if r.status_code == 429 or r.status_code >= 500:

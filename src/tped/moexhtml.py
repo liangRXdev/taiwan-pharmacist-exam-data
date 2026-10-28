@@ -148,9 +148,24 @@ def parse_exam_blocks(html: str) -> dict[str, ExamBlock]:
     return blocks
 
 
-def pharm_exam_codes(html: str) -> list[str]:
+def year_page_blocks(html: str, year_ce: int) -> dict[str, ExamBlock]:
+    """年度頁（y=）：下拉選單 ddlExamCode 與表格區塊之 exam_code 集合必須相等，且皆屬請求年度。
+
+    表格區塊消失或改版會使 universe 靜默縮小；站方 session 狀態可能回傳他年度之頁面。
+    """
+    opts = {code for code, _ in parse_exam_options(html)}
+    blocks = parse_exam_blocks(html)
+    wrong = sorted(c for c in opts | set(blocks) if int(c[:3]) + 1911 != year_ce)
+    if wrong:
+        raise PageStructureError(f"年度頁 {year_ce} 含他年度 exam_code：{wrong}")
+    if opts != set(blocks):
+        raise PageStructureError(f"年度頁 {year_ce} 下拉選單與表格區塊不符：僅選單 {sorted(opts - set(blocks))}、僅表格 {sorted(set(blocks) - opts)}")
+    return blocks
+
+
+def pharm_exam_codes(html: str, year_ce: int) -> list[str]:
     """年度頁中含藥師類科之考試 code（依 code 排序）。"""
-    return sorted(code for code, b in parse_exam_blocks(html).items() if b.pharm_rows())
+    return sorted(code for code, b in year_page_blocks(html, year_ce).items() if b.pharm_rows())
 
 
 def subject_page_block(html: str, exam_code: str) -> ExamBlock:

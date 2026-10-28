@@ -40,21 +40,34 @@ def _load_review(code: str) -> dict | None:
     return jsonio.load(f) if f.exists() else None
 
 
-def _review_verdict(review: dict | None, sample: list[str]) -> dict | None:
+def _review_stale(review: dict, items: list[dict], sample: list[str], digests: dict[str, str], exam: dict | None) -> bool:
+    """審查證據與本次 compile 不再對應：樣本集合（含重複 id）、L2 內容、考試日期來源任一不符。"""
+    ids = [it.get("id") for it in items]
+    if len(ids) != len(set(ids)) or sorted(ids) != sample:
+        return True
+    # 遷移待決：全部缺 l2_digest 之既有審查檔（v0.9 以前建立）暫不比對；部分缺 → 視為不符
+    has = [it for it in items if "l2_digest" in it]
+    if has and (len(has) != len(items) or any(it["l2_digest"] != digests.get(it["id"]) for it in items)):
+        return True
+    exp = exam or {}
+    return (review.get("exam_date"), review.get("exam_date_source_url")) != (exp.get("exam_date"), exp.get("exam_date_source_url"))
+
+
+def _review_verdict(review: dict | None, sample: list[str], *, digests: dict[str, str], exam: dict | None) -> dict | None:
     """回傳供 eligible 判定之 {revs, result}。
 
-    result 優先序：樣本與演算法重算不符 → stale；任一題 fail → fail；
+    result 優先序：樣本、L2 指紋或考試日期來源與本次 compile 不符 → stale；任一題 fail → fail；
     有題未判定、缺審查者或缺日期摘錄 → pending；其餘 → pass。
     """
     if review is None:
         return None
-    items = {it["id"]: it for it in review.get("items", [])}
-    if sorted(items) != sample:
+    items = review.get("items", [])
+    if _review_stale(review, items, sample, digests, exam):
         result = "stale"
-    elif any(it.get("result") == "fail" for it in items.values()):
+    elif any(it.get("result") == "fail" for it in items):
         result = "fail"
-    elif not (all(it.get("result") == "pass" and it.get("reviewer") for it in items.values())
-              and review.get("exam_date_source_quote")):
+    elif not (all(it.get("result") == "pass" and str(it.get("reviewer") or "").strip() for it in items)
+              and str(review.get("exam_date_source_quote") or "").strip()):
         result = "pending"
     else:
         result = "pass"
@@ -115,6 +128,7 @@ def compile_all(release_date: date, out: Path = ROOT, render: bool = True) -> di
         states[key] = eligible.TupleState(code, p, res.parked_reason, status, revs)
 
     good = [r for k, res in results.items() if not res.errors for r in res.records]
+    good_by_id = {r["id"]: r for r in good}
     id_errs = validate.ac4_ids(good) + validate.ac9_current(good, m)
     if id_errs:
         raise CompileError("AC-4/AC-9：" + "；".join(id_errs[:5]))
@@ -127,9 +141,11 @@ def compile_all(release_date: date, out: Path = ROOT, render: bool = True) -> di
         labels = {rid: labs for k in keys if k in results and not results[k].errors for rid, labs in results[k].labels.items()}
         seed = eligible.seed_of({k[1]: states[k].revs.get("Q") or "" for k in keys})
         sample = eligible.mg1_sample(labels, seed) if labels else []
+        digests = {i: eligible.l2_digest(good_by_id[i]) for i in sample}
         mg1[code] = {"exam_code": code, "seed": seed, "revs": exam_revs, "sample": sample,
-                     "labels": {i: labels[i] for i in sample}, "not_applicable": eligible.mg1_not_applicable(labels)}
-        verdict = _review_verdict(_load_review(code), sample)
+                     "labels": {i: labels[i] for i in sample}, "l2_digest": digests,
+                     "not_applicable": eligible.mg1_not_applicable(labels)}
+        verdict = _review_verdict(_load_review(code), sample, digests=digests, exam=exams_in.get(code))
         exam_date = date.fromisoformat(exams_in[code]["exam_date"]) if code in exams_in else None
         for k in keys:
             st = states[k]
